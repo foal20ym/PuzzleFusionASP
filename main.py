@@ -2,29 +2,84 @@ import tkinter as tk
 from tkinter import messagebox
 from random import sample
 import clingo
+from PIL import Image, ImageTk
+
+class MainMenu:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Main Menu")
+        self.width = 896
+        self.height = 512
+        self.root.geometry("896x512")
+
+        self.bg_image = Image.open("BackgroundImages/cabinBackground.jpeg")
+        self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
+        self.bg_photo = ImageTk.PhotoImage(self.bg_image)
+
+        self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
+        self.canvas.pack(fill="both", expand=True)
+        self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
+
+        self.create_menu()
+
+    def create_menu(self):
+        self.canvas.create_rectangle(self.width/2 - 100, 90, self.width/2 + 100, 110, fill="lightgray", outline="lightgray")
+        #self.canvas.create_text(300, 50, text="Select a game to play:", font=("Arial", 18), fill="black")
+        self.canvas.create_text(self.width/2, 100, text="Select a game to play:", font=("Arial", 18), fill="black")
+        
+        sudoku_button = tk.Button(self.root, text="Play Sudoku", font=("Arial", 14), command=self.launch_sudoku, bg="white", highlightbackground="white", borderwidth=0, width=15)
+        self.canvas.create_window(self.width/2, 200, window=sudoku_button)
+
+        ttt_button = tk.Button(self.root, text="Play Tic Tac Toe", font=("Arial", 14), command=self.launch_tic_tac_toe, bg="white", highlightbackground="white", borderwidth=0, width=15)
+        self.canvas.create_window(self.width/2, 250, window=ttt_button)
+
+    def launch_sudoku(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+            self.root.update()
+        self.root.update_idletasks() # Kanske inte behöver force-updatea här 
+        SudokuApp(self.root)
+        self.root.update()
+
+    def launch_tic_tac_toe(self):
+        # Placeholder för Tic Tac Toe eller något annat spel
+        messagebox.showinfo("Tic Tac Toe", "Tic Tac Toe game coming soon!")
+
 
 class SudokuApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Sudoku Game")
+        self.width = 896
+        self.height = 512
+        self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
+        self.canvas.pack(fill="both", expand=True)
+
         self.entries = [[None for _ in range(9)] for _ in range(9)]
+        self.user_inputs = []  # Array to track user inputs
         self.create_grid()
         self.create_buttons()
         self.generate_sudoku()
 
     def create_grid(self):
+        grid_size = 400
+        cell_size = grid_size // 9
+        start_x = (self.width - grid_size) // 2
+        start_y = (self.height - grid_size) // 2
+
         for row in range(9):
             for col in range(9):
                 entry = tk.Entry(self.root, width=2, font=('Arial', 18), justify='center')
-                entry.grid(row=row, column=col, padx=5, pady=5)
+                entry.place(x=start_x + col * cell_size, y=start_y + row * cell_size, width=cell_size, height=cell_size)
                 self.entries[row][col] = entry
+                entry.bind("<KeyRelease>", lambda event, r=row, c=col: self.track_user_input(r, c))
 
-    def create_buttons(self):
-        solve_button = tk.Button(self.root, text="Solve", command=self.solve)
-        solve_button.grid(row=9, column=0, columnspan=5, pady=10)
-        
-        clear_button = tk.Button(self.root, text="Clear", command=self.clear)
-        clear_button.grid(row=9, column=4, columnspan=5, pady=10)
+    def track_user_input(self, row, col):
+        value = self.entries[row][col].get()
+        if value:
+            self.user_inputs.append((row, col))
+        else:
+            self.user_inputs = [(r, c) for r, c in self.user_inputs if not (r == row and c == col)]
 
     def generate_sudoku(self):
         base = 3
@@ -43,7 +98,7 @@ class SudokuApp:
 
         board = [[nums[pattern(r, c)] for c in cols] for r in rows]
 
-        empty_count_per_row = (side // 2) + 1 # Ändra denna raden för att ändra antalet tomma rutor
+        empty_count_per_row = (side // 2) + 1
         for row in range(9):
             empty_positions = sample(range(9), empty_count_per_row)
             for col in empty_positions:
@@ -55,12 +110,8 @@ class SudokuApp:
                     self.entries[row][col].insert(0, board[row][col])
                     self.entries[row][col].config(state='readonly')
 
-
     def solve(self):
-        # Placeholder for solve functionality
         messagebox.showinfo("Solve", "Solve button clicked")
-
-        # Hämta ASP facts och lösningarna som finns
         facts = self.get_current_facts()
         solutions = self.asp_solver(facts)
         
@@ -77,17 +128,26 @@ class SudokuApp:
                 if not self.entries[row - 1][col - 1].get():
                     self.entries[row - 1][col - 1].insert(0, value)
                     self.entries[row - 1][col - 1].config(state='readonly')
+                    self.user_inputs.append((row - 1, col - 1))
 
     def clear(self):
+        for row, col in self.user_inputs:
+            self.entries[row][col].config(state='normal')
+            self.entries[row][col].delete(0, tk.END)
+        self.user_inputs.clear()
+
+    def new_game(self):
         for row in range(9):
             for col in range(9):
                 self.entries[row][col].config(state='normal')
                 self.entries[row][col].delete(0, tk.END)
+        self.clear()
+        self.generate_sudoku()
     
     def asp_solver(self, facts):
         ctl = clingo.Control()
         ctl.add("base", [], facts)
-        with open("sudokuSolver.lp") as f: # Läser sudokuSolver.lp filen som innehåller ASP lösaren för Sudoku
+        with open("sudokuSolver.lp") as f:
             ctl.add("base", [], f.read())
         ctl.ground([("base", [])])
 
@@ -96,8 +156,6 @@ class SudokuApp:
         return models
 
     def generate_hint(self):
-
-        # Hämta ASP facts och lösningarna som finns
         facts = self.get_current_facts()
         solutions = self.asp_solver(facts)
         
@@ -107,22 +165,19 @@ class SudokuApp:
 
         solution = solutions[0]
         for symbol in solution:
-
             if symbol.name == "sudoku" and len(symbol.arguments) == 3:
                 x, y, v = symbol.arguments
                 row, col, value = int(x.number), int(y.number), int(v.number)
 
                 if not self.entries[row - 1][col - 1].get():
-
                     hint_message = f"Suggested number: {value} at row {row}, column {col}"
                     messagebox.showinfo("Hint", hint_message)
-
                     self.entries[row - 1][col - 1].insert(0, value)
                     self.entries[row - 1][col - 1].config(state='readonly')
+                    self.user_inputs.append((row - 1, col - 1))
                     return
 
         messagebox.showinfo("Hint", "No hints available!")
-
 
     def validate_puzzle(self):
         facts = self.get_current_facts()
@@ -141,15 +196,18 @@ class SudokuApp:
 
     def create_buttons(self):
         solve_button = tk.Button(self.root, text="Solve", command=self.solve)
-        solve_button.grid(row=9, column=0, columnspan=3, pady=10)
+        solve_button.place(x=250, y=465)
 
         clear_button = tk.Button(self.root, text="Clear", command=self.clear)
-        clear_button.grid(row=9, column=3, columnspan=3, pady=10)
+        clear_button.place(x=350, y=465)
 
         hint_button = tk.Button(self.root, text="Hint", command=self.generate_hint)
-        hint_button.grid(row=9, column=6, columnspan=3, pady=10)
+        hint_button.place(x=450, y=465)
+
+        new_game_button = tk.Button(self.root, text="New Game", command=self.new_game)
+        new_game_button.place(x=550, y=465)
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = SudokuApp(root)
+    MainMenu(root)
     root.mainloop()
