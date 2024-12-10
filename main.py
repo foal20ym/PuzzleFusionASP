@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox
 from random import sample, randint
 from PIL import Image, ImageTk
+import clingo
 
 class MainMenu:
     def __init__(self, root):
