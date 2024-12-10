@@ -231,7 +231,19 @@ class SudokuApp:
 
         new_game_button = tk.Button(self.root, text="New Game", command=self.new_game)
         new_game_button.place(x=550, y=465)
-        
+
+        back_button = tk.Button(self.root, text="Back", command=self.back_to_menu)
+        back_button.place(x=650, y=465)
+
+    def back_to_menu(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+            self.root.update()
+        self.root.update_idletasks()
+        MainMenu(self.root)
+        self.root.update()
+
+
 class MinesweeperApp:
     def __init__(self, root):
         self.root = root
@@ -275,6 +287,9 @@ class MinesweeperApp:
 
         reset_button = tk.Button(self.root, text="Reset", command=self.reset)
         reset_button.place(x=150, y=20)
+
+        back_button = tk.Button(self.root, text="Back", command=self.back_to_menu)
+        back_button.place(x=250, y=20)
 
     def cell_clicked(self, row, col):
         if (row, col) in self.flags:
@@ -337,7 +352,16 @@ class MinesweeperApp:
 
     def reset(self):
         self.new_game()
-        
+
+    def back_to_menu(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+            self.root.update()
+        self.root.update_idletasks()
+        MainMenu(self.root)
+        self.root.update()
+
+
 if __name__ == "__main__":
     root = tk.Tk()
     MainMenu(root)
