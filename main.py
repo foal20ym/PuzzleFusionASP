@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-from random import sample
-import clingo
+from random import sample, randint
 from PIL import Image, ImageTk
 
 class MainMenu:
@@ -24,7 +23,6 @@ class MainMenu:
 
     def create_menu(self):
         self.canvas.create_rectangle(self.width/2 - 100, 90, self.width/2 + 100, 110, fill="lightgray", outline="lightgray")
-        #self.canvas.create_text(300, 50, text="Select a game to play:", font=("Arial", 18), fill="black")
         self.canvas.create_text(self.width/2, 100, text="Select a game to play:", font=("Arial", 18), fill="black")
         
         sudoku_button = tk.Button(self.root, text="Play Sudoku", font=("Arial", 14), command=self.launch_sudoku, bg="white", highlightbackground="white", borderwidth=0, width=15)
@@ -33,17 +31,27 @@ class MainMenu:
         ttt_button = tk.Button(self.root, text="Play Tic Tac Toe", font=("Arial", 14), command=self.launch_tic_tac_toe, bg="white", highlightbackground="white", borderwidth=0, width=15)
         self.canvas.create_window(self.width/2, 250, window=ttt_button)
 
+        minesweeper_button = tk.Button(self.root, text="Play Minesweeper", font=("Arial", 14), command=self.launch_minesweeper, bg="white", highlightbackground="white", borderwidth=0, width=15)
+        self.canvas.create_window(self.width/2, 300, window=minesweeper_button)
+
     def launch_sudoku(self):
         for widget in self.root.winfo_children():
             widget.destroy()
             self.root.update()
-        self.root.update_idletasks() # Kanske inte behöver force-updatea här 
+        self.root.update_idletasks()
         SudokuApp(self.root)
         self.root.update()
 
     def launch_tic_tac_toe(self):
-        # Placeholder för Tic Tac Toe eller något annat spel
         messagebox.showinfo("Tic Tac Toe", "Tic Tac Toe game coming soon!")
+
+    def launch_minesweeper(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+            self.root.update()
+        self.root.update_idletasks()
+        MinesweeperApp(self.root)
+        self.root.update()
 
 
 class SudokuApp:
@@ -52,14 +60,30 @@ class SudokuApp:
         self.root.title("Sudoku Game")
         self.width = 896
         self.height = 512
+
+        self.bg_image = Image.open("BackgroundImages/puzzleAppbackground.jpeg")
+        self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
+        self.bg_photo = ImageTk.PhotoImage(self.bg_image)
+
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
         self.canvas.pack(fill="both", expand=True)
+        self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
 
         self.entries = [[None for _ in range(9)] for _ in range(9)]
         self.user_inputs = []  # Array to track user inputs
+        self.score = 0
         self.create_grid()
         self.create_buttons()
+        self.create_scoreboard()
         self.generate_sudoku()
+
+    def create_scoreboard(self):
+        self.score_label = tk.Label(self.root, text=f"Score: {self.score}", font=("Arial", 14), bg="white")
+        self.canvas.create_window(50, 20, window=self.score_label)
+
+    def update_score(self, points):
+        self.score += points
+        self.score_label.config(text=f"Score: {self.score}")
 
     def create_grid(self):
         grid_size = 400
@@ -206,7 +230,113 @@ class SudokuApp:
 
         new_game_button = tk.Button(self.root, text="New Game", command=self.new_game)
         new_game_button.place(x=550, y=465)
+        
+class MinesweeperApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Minesweeper Game")
+        self.width = 896
+        self.height = 512
 
+        self.bg_image = Image.open("BackgroundImages/puzzleAppbackground.jpeg")
+        self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
+        self.bg_photo = ImageTk.PhotoImage(self.bg_image)
+
+        self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
+        self.canvas.pack(fill="both", expand=True)
+        self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
+
+        self.grid_size = 10  # 10x10 grid
+        self.num_mines = 10
+        self.cell_size = 40
+        self.cells = []
+        self.mines = set()
+        self.revealed = set()
+        self.flags = set()
+
+        self.create_grid()
+        self.create_buttons()
+        self.new_game()
+
+    def create_grid(self):
+        for row in range(self.grid_size):
+            row_cells = []
+            for col in range(self.grid_size):
+                button = tk.Button(self.root, width=2, height=1, command=lambda r=row, c=col: self.cell_clicked(r, c))
+                button.bind("<Button-3>", lambda event, r=row, c=col: self.toggle_flag(r, c))
+                button.place(x=col * self.cell_size + 100, y=row * self.cell_size + 50, width=self.cell_size, height=self.cell_size)
+                row_cells.append(button)
+            self.cells.append(row_cells)
+
+    def create_buttons(self):
+        new_game_button = tk.Button(self.root, text="New Game", command=self.new_game)
+        new_game_button.place(x=50, y=20)
+
+        reset_button = tk.Button(self.root, text="Reset", command=self.reset)
+        reset_button.place(x=150, y=20)
+
+    def cell_clicked(self, row, col):
+        if (row, col) in self.flags:
+            return
+        if (row, col) in self.mines:
+            self.reveal_mines()
+            messagebox.showerror("Game Over", "You clicked on a mine!")
+            self.reset()
+        else:
+            self.reveal_cell(row, col)
+            if len(self.revealed) == self.grid_size * self.grid_size - self.num_mines:
+                messagebox.showinfo("Congratulations", "You won!")
+                self.reset()
+
+    def reveal_cell(self, row, col):
+        if (row, col) in self.revealed:
+            return
+        self.revealed.add((row, col))
+        self.cells[row][col].config(state="disabled", relief=tk.SUNKEN)
+        mine_count = self.count_adjacent_mines(row, col)
+        if mine_count > 0:
+            self.cells[row][col].config(text=str(mine_count))
+        else:
+            for r in range(max(0, row-1), min(self.grid_size, row+2)):
+                for c in range(max(0, col-1), min(self.grid_size, col+2)):
+                    if (r, c) != (row, col):
+                        self.reveal_cell(r, c)
+
+    def count_adjacent_mines(self, row, col):
+        count = 0
+        for r in range(max(0, row-1), min(self.grid_size, row+2)):
+            for c in range(max(0, col-1), min(self.grid_size, col+2)):
+                if (r, c) in self.mines:
+                    count += 1
+        return count
+
+    def toggle_flag(self, row, col):
+        if (row, col) in self.revealed:
+            return
+        if (row, col) in self.flags:
+            self.flags.remove((row, col))
+            self.cells[row][col].config(text="")
+        else:
+            self.flags.add((row, col))
+            self.cells[row][col].config(text="F")
+
+    def reveal_mines(self):
+        for mine in self.mines:
+            self.cells[mine[0]][mine[1]].config(text="M", bg="red")
+
+    def new_game(self):
+        self.mines = set()
+        self.revealed = set()
+        self.flags = set()
+        for row in range(self.grid_size):
+            for col in range(self.grid_size):
+                self.cells[row][col].config(text="", state="normal", relief=tk.RAISED, bg="lightgray")
+        while len(self.mines) < self.num_mines:
+            self.mines.add((randint(0, self.grid_size-1), randint(0, self.grid_size-1)))
+
+    def reset(self):
+        self.new_game()
+        
 if __name__ == "__main__":
     root = tk.Tk()
     MainMenu(root)
