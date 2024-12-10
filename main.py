@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-import clingo
 from minesweeperApp import MinesweeperApp
 from sudokuApp import SudokuApp
 
