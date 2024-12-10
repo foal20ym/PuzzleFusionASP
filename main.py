@@ -9,9 +9,11 @@ class MainMenu:
     def __init__(self, root):
         self.root = root
         self.root.title("Main Menu")
-        self.width = 896
-        self.height = 512
-        self.root.geometry("896x512")
+        #self.width = 896, self.height = 512, self.root.geometry("896x512")
+        self.width = self.root.winfo_screenwidth()
+        self.height = self.root.winfo_screenheight()
+        geometryString = str(self.width) + "x" + str(self.height)
+        self.root.geometry(geometryString)
 
         self.bg_image = Image.open("BackgroundImages/cabinBackground.jpeg")
         self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
