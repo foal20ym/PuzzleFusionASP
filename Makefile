@@ -18,7 +18,7 @@ lint:
 install:
 	pip install -r requirements.txt
 
-mac install:
+mac_install:
 	python -m pip install -U -r requirements.txt 
 
 update:
