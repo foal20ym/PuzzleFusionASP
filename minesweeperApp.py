@@ -12,20 +12,35 @@ else:
     Button = tk.Button
 
 class MinesweeperApp:
-    def __init__(self, root):
+    def __init__(self, root, window_config=None):
         self.root = root
-        self.root.title("Minesweeper Game")
-        #self.width = 896
-        #self.height = 512
-        self.width = self.root.winfo_screenwidth()
-        self.height = self.root.winfo_screenheight()
+        self.is_fullscreen = False
+        self.pre_fullscreen_geometry = None
+        self.root.title("Minesweeper")
+        self.root.bind("<Configure>", self.on_resize)
+        
+        if window_config:
+            self.width = window_config.width
+            self.height = window_config.height
+            # Apply stored window position and size
+            self.root.geometry(f"{self.width}x{self.height}+{window_config.x}+{window_config.y}")
+        else:
+            # Fallback to default full screen
+            self.width = self.root.winfo_screenwidth()
+            self.height = self.root.winfo_screenheight()
+            
+        # Configure grid weights for responsive layout
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
 
+        # Load and resize background image
         self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
         self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
+        # Create canvas with grid
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
-        self.canvas.pack(fill="both", expand=True)
+        self.canvas.grid(row=0, column=0, sticky="nsew")
         self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
 
         self.grid_size = 10  # 10x10 grid
@@ -36,9 +51,46 @@ class MinesweeperApp:
         self.revealed = set()
         self.flags = set()
 
+        # Bind resize event
+        self.root.bind("<Configure>", self.on_resize)
+
         self.create_grid()
         self.create_buttons()
         self.new_game()
+
+    def on_resize(self, event):
+        # Get current fullscreen state
+        new_fullscreen = self.root.attributes('-fullscreen')
+        
+        # Handle fullscreen toggle
+        if new_fullscreen != self.is_fullscreen:
+            if new_fullscreen:  # Entering fullscreen
+                self.pre_fullscreen_geometry = self.root.geometry()
+            else:  # Exiting fullscreen
+                if self.pre_fullscreen_geometry:
+                    self.root.after(100, lambda: self.root.geometry(self.pre_fullscreen_geometry))
+            self.is_fullscreen = new_fullscreen
+            return  # Skip resize handling during toggle
+        
+        # Only update if window size actually changed
+        if event.widget == self.root and \
+           (self.width != event.width or self.height != event.height):
+            self.width = event.width
+            self.height = event.height
+            
+            # Resize background image
+            self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
+            self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
+            self.bg_photo = ImageTk.PhotoImage(self.bg_image)
+            
+            # Update canvas and redraw everything
+            self.canvas.delete("all")
+            self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
+            
+            # Recreate game elements
+            self.cells = []
+            self.create_grid()
+            self.create_buttons()
 
     def create_grid(self):
         grid_size = 400
