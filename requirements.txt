@@ -1,6 +1,13 @@
+astroid==3.3.6
 cffi==1.17.1
 clingo==5.7.1
 colour==0.1.5
+dill==0.3.9
+isort==5.13.2
+mccabe==0.7.0
 pillow==11.0.0
+platformdirs==4.3.6
 pycparser==2.22
+pylint==3.3.2
 tkmacosx==1.0.5
+tomlkit==0.13.2

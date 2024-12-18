@@ -1,3 +1,6 @@
+"""
+Suduko app
+"""
 import tkinter as tk
 from tkinter import messagebox
 from random import sample
@@ -5,6 +8,7 @@ from PIL import Image, ImageTk
 import clingo
 
 class SudokuApp:
+    "Suduko class"
     def __init__(self, root):
         self.root = root
         self.root.title("Sudoku Game")
@@ -14,7 +18,7 @@ class SudokuApp:
         self.height = self.root.winfo_screenheight()
 
         self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
-        self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
+#        self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
@@ -30,14 +34,17 @@ class SudokuApp:
         self.generate_sudoku()
 
     def create_scoreboard(self):
+        "create scoreboard"
         self.score_label = tk.Label(self.root, text=f"Score: {self.score}", font=("Arial", 14), bg="black")
         self.canvas.create_window(50, 20, window=self.score_label)
 
     def update_score(self, points):
+        "update score"
         self.score += points
         self.score_label.config(text=f"Score: {self.score}")
 
     def create_grid(self):
+        "create grid"
         grid_size = 400
         cell_size = grid_size // 9
         start_x = (self.width - grid_size) // 2
@@ -52,6 +59,7 @@ class SudokuApp:
                 entry.bind("<KeyPress>", lambda e, r=row, c=col: self.validate_input(e, r, c))
 
     def validate_input(self, event, row, col):
+        "validate input"
         # Block non-numeric input
         if event.char.isdigit():
             if event.char == '0':
@@ -59,13 +67,14 @@ class SudokuApp:
             # Allow only single digit
             if self.entries[row][col].get():
                 return 'break'
-            return
+            return None
         # Allow backspace/delete
-        elif event.keysym in ('BackSpace', 'Delete'):
-            return
+        if event.keysym in ('BackSpace', 'Delete'):
+            return None
         return 'break'
 
     def track_user_input(self, row, col):
+        "track user input"
         value = self.entries[row][col].get()
         if value:
             self.user_inputs.append((row, col))
@@ -73,18 +82,19 @@ class SudokuApp:
             self.user_inputs = [(r, c) for r, c in self.user_inputs if not (r == row and c == col)]
 
     def generate_sudoku(self):
+        "generate sudoku"
         base = 3
         side = base * base
 
-        def pattern(r, c): 
+        def pattern(r, c):
             return (base * (r % base) + r // base + c) % side
 
-        def shuffle(s): 
-            return sample(s, len(s)) 
+        def shuffle(s):
+            return sample(s, len(s))
 
-        rBase = range(base) 
-        rows = [g * base + r for g in shuffle(rBase) for r in shuffle(rBase)] 
-        cols = [g * base + c for g in shuffle(rBase) for c in shuffle(rBase)]
+        r_base = range(base)
+        rows = [g * base + r for g in shuffle(r_base) for r in shuffle(r_base)]
+        cols = [g * base + c for g in shuffle(r_base) for c in shuffle(r_base)]
         nums = shuffle(range(1, base * base + 1))
 
         board = [[nums[pattern(r, c)] for c in cols] for r in rows]
@@ -102,10 +112,11 @@ class SudokuApp:
                     self.entries[row][col].config(state='readonly')
 
     def solve(self):
+        "solve"
         messagebox.showinfo("Solve", "Solve button clicked")
         facts = self.get_current_facts()
         solutions = self.asp_solver(facts)
-        
+
         if not solutions:
             messagebox.showerror("No solution exists!")
             return
@@ -122,23 +133,26 @@ class SudokuApp:
                     self.user_inputs.append((row - 1, col - 1))
 
     def clear(self):
+        "clear"
         for row, col in self.user_inputs:
             self.entries[row][col].config(state='normal')
             self.entries[row][col].delete(0, tk.END)
         self.user_inputs.clear()
 
     def new_game(self):
+        "new game"
         for row in range(9):
             for col in range(9):
                 self.entries[row][col].config(state='normal')
                 self.entries[row][col].delete(0, tk.END)
         self.clear()
         self.generate_sudoku()
-    
+
     def asp_solver(self, facts):
+        "asp solver"
         ctl = clingo.Control()
         ctl.add("base", [], facts)
-        with open("sudokuSolver.lp") as f:
+        with open("sudokuSolver.lp", encoding="UTF-8") as f:
             ctl.add("base", [], f.read())
         ctl.ground([("base", [])])
 
@@ -147,9 +161,10 @@ class SudokuApp:
         return models
 
     def generate_hint(self):
+        "generate hint"
         facts = self.get_current_facts()
         solutions = self.asp_solver(facts)
-        
+
         if not solutions:
             messagebox.showerror("Hint Error", "No solution exists!")
             return
@@ -171,12 +186,14 @@ class SudokuApp:
         messagebox.showinfo("Hint", "No hints available!")
 
     def validate_puzzle(self):
+        "validate puzzle"
         facts = self.get_current_facts()
         solutions = self.asp_solver(facts)
         if not solutions:
             messagebox.showerror("Invalid Move", "Puzzle is unsolvable!")
 
     def get_current_facts(self):
+        "get current facts"
         facts = []
         for row in range(9):
             for col in range(9):
@@ -186,9 +203,10 @@ class SudokuApp:
         return "\n".join(facts)
 
     def create_buttons(self, button_width=80, spacing=10):
+        "create buttons"
         button_texts = ["Solve", "Clear", "Hint", "New Game", "Back"]
         button_commands = [self.solve, self.clear, self.generate_hint, self.new_game, self.back_to_menu]
-        
+
         button_height = 30
         grid_size = 400
         cell_size = grid_size // 9
@@ -207,6 +225,7 @@ class SudokuApp:
             button.place(x=x_position, y=y_position, width=button_width, height=button_height)
 
     def back_to_menu(self):
+        "back to menu"
         from main import MainMenu
         for widget in self.root.winfo_children():
             widget.destroy()
