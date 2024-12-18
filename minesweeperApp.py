@@ -15,10 +15,9 @@ class MinesweeperApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Minesweeper Game")
-        #self.width = 896
-        #self.height = 512
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
+        # self.height = self.root.winfo_screenheight() // 2 # Use this when on Ubuntu and using Sway
 
         self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
         self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)

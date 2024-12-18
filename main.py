@@ -8,9 +8,9 @@ class MainMenu:
     def __init__(self, root):
         self.root = root
         self.root.title("Main Menu")
-        #self.width = 896, self.height = 512, self.root.geometry("896x512")
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
+        # self.height = self.root.winfo_screenheight() // 2 # Use this when on Ubuntu and using Sway
         geometryString = str(self.width) + "x" + str(self.height)
         self.root.geometry(geometryString)
 
