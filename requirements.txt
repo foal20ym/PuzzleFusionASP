@@ -1,3 +1,6 @@
-clingo
-pillow
-tkmacosx
+cffi==1.17.1
+clingo==5.7.1
+colour==0.1.5
+pillow==11.0.0
+pycparser==2.22
+tkmacosx==1.0.5
