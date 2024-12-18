@@ -1,8 +1,11 @@
+"""
+Minesweeper module
+"""
 import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageTk
 from random import randint
 import platform
+from PIL import Image, ImageTk
 
 # Kollar ifall man har MacOS så man använder tkmacosx istället för tk
 is_macos = platform.system() == "Darwin"
@@ -12,6 +15,7 @@ else:
     Button = tk.Button
 
 class MinesweeperApp:
+    "Minesweeper app"
     def __init__(self, root):
         self.root = root
         self.root.title("Minesweeper Game")
@@ -21,7 +25,7 @@ class MinesweeperApp:
         self.height = self.root.winfo_screenheight()
 
         self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
-        self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
+        #self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
@@ -41,6 +45,7 @@ class MinesweeperApp:
         self.new_game()
 
     def create_grid(self):
+        "create a grid"
         grid_size = 400
         cell_size = grid_size // self.grid_size
         start_x = (self.width - grid_size) // 2
@@ -69,6 +74,7 @@ class MinesweeperApp:
             self.cells.append(row_cells)
 
     def create_buttons(self, button_width=80, spacing=10):
+        "create buttons"
         button_texts = ["New Game", "Reset", "Back"]
         button_commands = [self.new_game, self.reset, self.back_to_menu]
 
@@ -86,6 +92,7 @@ class MinesweeperApp:
             button.place(x=x_position, y=y_position, width=button_width, height=button_height)
 
     def cell_clicked(self, row, col):
+        "cell clicked"
         if (row, col) in self.flags:
             return
         if (row, col) in self.mines:
@@ -99,6 +106,7 @@ class MinesweeperApp:
                 self.reset()
 
     def reveal_cell(self, row, col):
+        "reveal cell"
         if (row, col) in self.revealed:
             return
         self.revealed.add((row, col))
@@ -114,6 +122,7 @@ class MinesweeperApp:
                         self.cells[row][col].config(bg="lightgray")
 
     def count_adjacent_mines(self, row, col):
+        "count adjacent mines"
         count = 0
         for r in range(max(0, row - 1), min(self.grid_size, row + 2)):
             for c in range(max(0, col - 1), min(self.grid_size, col + 2)):
@@ -122,6 +131,7 @@ class MinesweeperApp:
         return count
 
     def toggle_flag(self, row, col):
+        "toggle flag"
         if (row, col) in self.revealed:
             return
         if (row, col) in self.flags:
@@ -132,10 +142,12 @@ class MinesweeperApp:
             self.cells[row][col].config(text="F")
 
     def reveal_mines(self):
+        "reveal mines"
         for mine in self.mines:
             self.cells[mine[0]][mine[1]].config(text="M", bg="red")
 
     def new_game(self):
+        "new game"
         self.mines = set()
         self.revealed = set()
         self.flags = set()
@@ -146,9 +158,11 @@ class MinesweeperApp:
             self.mines.add((randint(0, self.grid_size - 1), randint(0, self.grid_size - 1)))
 
     def reset(self):
+        "reset"
         self.new_game()
 
     def back_to_menu(self):
+        "back to menu"
         from main import MainMenu
         for widget in self.root.winfo_children():
             widget.destroy()

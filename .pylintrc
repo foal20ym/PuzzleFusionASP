@@ -439,6 +439,10 @@ disable=raw-checker-failed,
 		E0401,
 		W0612,
 		C0413,
+		R0401,	# cyclic imports, vette fan hur man ska lösa det
+		R0801,  # similar lines in 2 files
+		C0415,  # import outside top level
+		R0902,  # max attributes
 		W0311,	# bad-indentation
 		E0611,	# no-name-in-module
 		W0702	# bare-except

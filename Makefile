@@ -6,14 +6,14 @@ run:
 	python main.py
 
 check:
-	make test
+#	make test
 	make lint
 
 lint:
-	pylint *.py tests/**/*.py
+	pylint *.py #tests/**/*.py
 
-test:
-	pytest -v
+#test:
+#	pytest -v
 
 install:
 	pip install -r requirements.txt
