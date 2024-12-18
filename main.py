@@ -25,8 +25,8 @@ class MainMenu:
         self.create_menu()
 
     def create_menu(self):
-        self.canvas.create_rectangle(self.width/2 - 100, 90, self.width/2 + 100, 110, fill="lightgray", outline="lightgray")
-        self.canvas.create_text(self.width/2, 100, text="Select a game to play:", font=("Arial", 18), fill="black")
+        # self.canvas.create_rectangle(self.width/2 - 100, 90, self.width/2 + 100, 110, fill="lightgray", outline="lightgray")
+        # self.canvas.create_text(self.width/2, 100, text="Select a game to play:", font=("Arial", 18), fill="black")
         
         sudoku_button = tk.Button(self.root, text="Play Sudoku", font=("Arial", 14), command=self.launch_sudoku, bg="white", highlightbackground="white", borderwidth=0, width=15)
         self.canvas.create_window(self.width/2, 200, window=sudoku_button)
@@ -36,6 +36,13 @@ class MainMenu:
 
         minesweeper_button = tk.Button(self.root, text="Play Minesweeper", font=("Arial", 14), command=self.launch_minesweeper, bg="white", highlightbackground="white", borderwidth=0, width=15)
         self.canvas.create_window(self.width/2, 300, window=minesweeper_button)
+
+        # exit button
+        exit_button = tk.Button(self.root, text="Exit", font=("Arial", 14), command=self.exit_app, bg="red", fg="white", highlightbackground="red", activebackground="red", borderwidth=0)
+        self.canvas.create_window(self.width/2, 350, window=exit_button)
+
+    def exit_app(self):
+        self.root.quit()
 
     def launch_sudoku(self):
         for widget in self.root.winfo_children():
