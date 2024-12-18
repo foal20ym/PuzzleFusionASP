@@ -48,7 +48,22 @@ class SudokuApp:
                 entry = tk.Entry(self.root, width=2, font=('Arial', 18), justify='center')
                 entry.place(x=start_x + col * cell_size, y=start_y + row * cell_size, width=cell_size, height=cell_size)
                 self.entries[row][col] = entry
-                entry.bind("<KeyRelease>", lambda event, r=row, c=col: self.track_user_input(r, c))
+                # Add validation bindings
+                entry.bind("<KeyPress>", lambda e, r=row, c=col: self.validate_input(e, r, c))
+
+    def validate_input(self, event, row, col):
+        # Block non-numeric input
+        if event.char.isdigit():
+            if event.char == '0':
+                return 'break'
+            # Allow only single digit
+            if self.entries[row][col].get():
+                return 'break'
+            return
+        # Allow backspace/delete
+        elif event.keysym in ('BackSpace', 'Delete'):
+            return
+        return 'break'
 
     def track_user_input(self, row, col):
         value = self.entries[row][col].get()
