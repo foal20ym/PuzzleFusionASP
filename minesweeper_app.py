@@ -21,8 +21,8 @@ class MinesweeperApp:
         self.root = root
         self.root.title("Minesweeper Game")
         self.width = self.root.winfo_screenwidth()
-        # self.height = self.root.winfo_screenheight()
-        self.height = self.root.winfo_screenheight() // 2 # Use this when on Ubuntu and using Sway
+        self.height = self.root.winfo_screenheight()
+        # self.height = self.root.winfo_screenheight() // 2 # Use this when on Ubuntu and using Sway
 
         self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
@@ -31,6 +31,9 @@ class MinesweeperApp:
         self.canvas.pack(fill="both", expand=True)
         self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
 
+        self.solution = None  # Will store the ASP solution
+        self.solution_numbers = {}  # Will store number cells
+        self.solution_mines = set()  # Will store mine locations
         self.grid_size = 10  # 10x10 grid
         self.num_mines = 10
         self.cell_size = 40
@@ -90,6 +93,40 @@ class MinesweeperApp:
             x_position = start_x + i * (button_width + spacing)
             button = Button(self.root, text=text, command=command, bg="white", fg="black")
             button.place(x=x_position, y=y_position, width=button_width, height=button_height)
+    
+    def solve_board(self):
+        """Solve the entire board using ASP when starting a new game"""
+        facts = []
+        # Define grid size constants
+        facts.append(f"#const r={self.grid_size}.")
+        facts.append(f"#const c={self.grid_size}.")
+        
+        # Add known mine positions
+        for row, col in self.mines:
+            facts.append(f"mine({col},{row}).")
+        
+        # Add initial numbers
+        for row in range(self.grid_size):
+            for col in range(self.grid_size):
+                if (row, col) not in self.mines:
+                    count = self.count_adjacent_mines(row, col)
+                    facts.append(f"number({col},{row},{count}).")
+        
+        solutions = self.asp_solver("\n".join(facts))
+        
+        if solutions and solutions[0]:
+            self.solution = solutions[0]
+            # Store solution in easy-to-use format
+            self.solution_mines = set()
+            self.solution_numbers = {}
+            
+            for symbol in self.solution:
+                if str(symbol.name) == "mine":
+                    col, row = symbol.arguments
+                    self.solution_mines.add((row.number, col.number))
+                elif str(symbol.name) == "number":
+                    col, row, num = symbol.arguments
+                    self.solution_numbers[(row.number, col.number)] = num.number
 
     def cell_clicked(self, row, col):
         "cell clicked"
@@ -190,59 +227,57 @@ class MinesweeperApp:
         return "\n".join(facts)
 
     def generate_hint(self):
-        """Get next safe move from ASP solver"""
-        facts = self.get_current_facts()
-        solutions = self.asp_solver(facts)
-        
-        if not solutions or not solutions[0]:
-            messagebox.showinfo("Hint", "No safe moves found!")
+        """Get next safe move from stored solution"""
+        if not self.solution:
+            messagebox.showinfo("Hint", "No solution available!")
             return
             
-        solution = solutions[0]
+        # Look for an unrevealed safe cell
+        for pos, num in self.solution_numbers.items():
+            if pos not in self.revealed and pos not in self.mines:
+                row, col = pos
+                self.cells[row][col].config(bg="lightgreen")
+                return
         
-        # Look for a safe cell (one with a number, not a mine)
-        for symbol in solution:
-            if str(symbol.name) == "number":
-                col, row, num = symbol.arguments
-                
-                if (row.number, col.number) not in self.revealed:
-                    hint_message = f"Safe cell at row {row.number + 1}, column {col.number + 1}"
-                    messagebox.showinfo("Hint", hint_message)
-                    self.cells[row.number][col.number].config(bg="lightgreen")
-                    return
-        
-        messagebox.showinfo("Hint", "Could not determine a safe move")
+        messagebox.showinfo("Hint", "No more safe moves available!")
 
     def solve(self):
-        """Solve entire game using ASP"""
-        facts = self.get_current_facts()
-        solutions = self.asp_solver(facts)
-        
-        if not solutions:
-            messagebox.showinfo("Solver", "No solution found!")
+        """Reveal all safe cells using stored solution"""
+        if not self.solution:
+            messagebox.showinfo("Solver", "No solution available!")
             return
             
-        solution = solutions[0]
-        for symbol in solution:
-            if str(symbol.name) == "mine":
-                col, row = symbol.arguments  # Note: ASP returns col,row order
-                # Place flag at mine location
-                self.toggle_flag(row.number, col.number)
-            elif str(symbol.name) == "number":
-                col, row, num = symbol.arguments
-                # Reveal safe cell
-                self.cell_clicked(row.number, col.number)
+        # Place flags on all mines
+        for row, col in self.solution_mines:
+            if (row, col) not in self.flags:
+                self.toggle_flag(row, col)
+        
+        # Reveal all safe cells
+        for pos, num in self.solution_numbers.items():
+            row, col = pos
+            if pos not in self.revealed and pos not in self.mines:
+                self.cell_clicked(row, col)
 
     def new_game(self):
         "new game"
         self.mines = set()
         self.revealed = set()
         self.flags = set()
+        self.solution = None
+        self.solution_numbers = {}
+        self.solution_mines = set()
+        
+        # Reset grid
         for row in range(self.grid_size):
             for col in range(self.grid_size):
                 self.cells[row][col].config(text="", state="normal", bg="gray")
+        
+        # Place mines
         while len(self.mines) < self.num_mines:
             self.mines.add((randint(0, self.grid_size - 1), randint(0, self.grid_size - 1)))
+        
+        # Solve board
+        self.solve_board()
         
     def reset(self):
         "reset"
