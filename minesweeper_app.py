@@ -94,32 +94,32 @@ class MinesweeperApp:
             x_position = start_x + i * (button_width + spacing)
             button = Button(self.root, text=text, command=command, bg="white", fg="black")
             button.place(x=x_position, y=y_position, width=button_width, height=button_height)
-    
+
     def solve_board(self):
         """Solve the entire board using ASP when starting a new game"""
         facts = []
         # Define grid size constants
         facts.append(f"#const r={self.grid_size}.")
         facts.append(f"#const c={self.grid_size}.")
-        
+
         # Add known mine positions
         for row, col in self.mines:
             facts.append(f"mine({col},{row}).")
-        
+
         # Add initial numbers
         for row in range(self.grid_size):
             for col in range(self.grid_size):
                 if (row, col) not in self.mines:
                     count = self.count_adjacent_mines(row, col)
                     facts.append(f"number({col},{row},{count}).")
-        
+
         solutions = self.asp_solver("\n".join(facts))
-        
+
         if solutions and solutions[0]:
             self.solution = solutions[0]
             self.solution_mines = set()
             self.solution_numbers = {}
-            
+
             for symbol in self.solution:
                 if str(symbol.name) == "mine":
                     col, row = symbol.arguments
@@ -141,7 +141,8 @@ class MinesweeperApp:
             if len(self.revealed) == self.grid_size * self.grid_size - self.num_mines:
                 messagebox.showinfo("Congratulations", "You won!")
                 self.game_over = True
-        if self.game_over: self.reset()
+        if self.game_over:
+            self.reset()
 
     def reveal_cell(self, row, col):
         "reveal cell"
@@ -189,42 +190,42 @@ class MinesweeperApp:
         try:
             # Create control object
             ctl = clingo.Control()
-            
+
             # Load ASP program
             with open(self.asp_rules, 'r', encoding='utf-8') as f:
                 program = f.read()
-            
+
             # Add program and facts
             ctl.add("base", [], program)
             ctl.add("base", [], facts)
-            
+
             # Ground and solve
             ctl.ground([("base", [])])
             solutions = []
-            
+
             def on_model(model):
                 solutions.append(model.symbols(shown=True))
-            
+
             ctl.solve(on_model=on_model)
             return solutions
-            
+
         except Exception as e:
             messagebox.showerror("Error", f"ASP Solver error: {str(e)}")
             return []
-            
+
     def get_current_facts(self):
         """Generate facts for current game state"""
         facts = []
         # Define grid size constants
         facts.append(f"#const r={self.grid_size}.")
         facts.append(f"#const c={self.grid_size}.")
-        
+
         # Add revealed numbers
         for cell in self.revealed:
             row, col = cell
             count = self.count_adjacent_mines(row, col)
             facts.append(f"number({col},{row},{count}).")
-        
+
         return "\n".join(facts)
 
     def generate_hint(self):
@@ -232,14 +233,14 @@ class MinesweeperApp:
         if not self.solution:
             messagebox.showinfo("Hint", "No solution available!")
             return
-            
+
         # Look for an unrevealed safe cell
         for pos, num in self.solution_numbers.items():
             if pos not in self.revealed and pos not in self.mines:
                 row, col = pos
                 self.cells[row][col].config(bg="lightgreen")
                 return
-        
+
         messagebox.showinfo("Hint", "No more safe moves available!")
 
     def solve(self):
@@ -247,13 +248,13 @@ class MinesweeperApp:
         if not self.solution:
             messagebox.showinfo("Solver", "No solution available!")
             return
-            
+
         # Place flags on all mines
         for row, col in self.solution_mines:
             if (row, col) not in self.flags:
                 self.flags.add((row, col))
                 self.cells[row][col].config(text="F")
-        
+
         # Reveal all safe cells
         for pos, num in self.solution_numbers.items():
             row, col = pos
@@ -277,19 +278,19 @@ class MinesweeperApp:
         self.solution_numbers = {}
         self.solution_mines = set()
         self.game_over = False
-        
+
         # Reset grid
         for row in range(self.grid_size):
             for col in range(self.grid_size):
                 self.cells[row][col].config(text="", state="normal", bg="gray")
-        
+
         # Place mines
         while len(self.mines) < self.num_mines:
             self.mines.add((randint(0, self.grid_size - 1), randint(0, self.grid_size - 1)))
-        
+
         # Solve board
         self.solve_board()
-        
+
     def reset(self):
         "reset"
         self.new_game()
