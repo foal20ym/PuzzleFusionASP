@@ -439,6 +439,7 @@ disable=raw-checker-failed,
 		E0401,
 		W0612,
 		C0413,
+		W0718,	# too general exception catch
 		R0401,	# cyclic imports, vette fan hur man ska lösa det
 		R0801,  # similar lines in 2 files
 		C0415,  # import outside top level
