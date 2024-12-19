@@ -31,9 +31,10 @@ class MinesweeperApp:
         self.canvas.pack(fill="both", expand=True)
         self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
 
-        self.solution = None  # Will store the ASP solution
-        self.solution_numbers = {}  # Will store number cells
-        self.solution_mines = set()  # Will store mine locations
+        self.game_over = False
+        self.solution = None
+        self.solution_numbers = {}
+        self.solution_mines = set()
         self.grid_size = 10  # 10x10 grid
         self.num_mines = 10
         self.cell_size = 40
@@ -116,7 +117,6 @@ class MinesweeperApp:
         
         if solutions and solutions[0]:
             self.solution = solutions[0]
-            # Store solution in easy-to-use format
             self.solution_mines = set()
             self.solution_numbers = {}
             
@@ -130,17 +130,18 @@ class MinesweeperApp:
 
     def cell_clicked(self, row, col):
         "cell clicked"
-        if (row, col) in self.flags:
+        if self.game_over or (row, col) in self.flags:
             return
         if (row, col) in self.mines:
             self.reveal_mines()
             messagebox.showerror("Game Over", "You clicked on a mine!")
-            self.reset()
+            self.game_over = True
         else:
             self.reveal_cell(row, col)
             if len(self.revealed) == self.grid_size * self.grid_size - self.num_mines:
                 messagebox.showinfo("Congratulations", "You won!")
-                self.reset()
+                self.game_over = True
+        if self.game_over: self.reset()
 
     def reveal_cell(self, row, col):
         "reveal cell"
@@ -222,7 +223,7 @@ class MinesweeperApp:
         for cell in self.revealed:
             row, col = cell
             count = self.count_adjacent_mines(row, col)
-            facts.append(f"number({col},{row},{count}).")  # Note: number(col,row,num) format
+            facts.append(f"number({col},{row},{count}).")
         
         return "\n".join(facts)
 
@@ -250,13 +251,22 @@ class MinesweeperApp:
         # Place flags on all mines
         for row, col in self.solution_mines:
             if (row, col) not in self.flags:
-                self.toggle_flag(row, col)
+                self.flags.add((row, col))
+                self.cells[row][col].config(text="F")
         
         # Reveal all safe cells
         for pos, num in self.solution_numbers.items():
             row, col = pos
             if pos not in self.revealed and pos not in self.mines:
-                self.cell_clicked(row, col)
+                self.revealed.add((row, col))
+                count = self.count_adjacent_mines(row, col)
+                self.cells[row][col].config(
+                    text=str(count) if count > 0 else "",
+                    state="disabled",
+                    bg="lightgray"
+                )
+        messagebox.showinfo("Congratulations", "You won!")
+        self.reset()
 
     def new_game(self):
         "new game"
@@ -266,6 +276,7 @@ class MinesweeperApp:
         self.solution = None
         self.solution_numbers = {}
         self.solution_mines = set()
+        self.game_over = False
         
         # Reset grid
         for row in range(self.grid_size):
