@@ -76,7 +76,7 @@ class MinesweeperApp:
     def create_buttons(self, button_width=80, spacing=10):
         "create buttons"
         button_texts = ["Solve", "Hint", "New Game", "Back"]
-        button_commands = [self.solve, self.generate_hint, self.new_game, self.back_to_menu]
+        button_commands = [self.solve, self.generate_hint, self.new_game, self.back_to_menu, self.reset]
 
         button_height = 30
         grid_size = 400
@@ -177,18 +177,16 @@ class MinesweeperApp:
     def get_current_facts(self):
         """Generate facts for current game state"""
         facts = []
-        # Add board size
-        facts.append(f"boardsize({self.grid_size}).")
-        # Add known mines
-        for mine in self.mines:
-            facts.append(f"mine({mine[0]+1},{mine[1]+1}).")
-        # Add revealed cells
+        # Define grid size constants
+        facts.append(f"#const r={self.grid_size}.")
+        facts.append(f"#const c={self.grid_size}.")
+        
+        # Add revealed numbers
         for cell in self.revealed:
-            count = self.count_adjacent_mines(cell[0], cell[1])
-            facts.append(f"revealed({cell[0]+1},{cell[1]+1},{count}).")
-        # Add flagged cells
-        for flag in self.flags:
-            facts.append(f"flagged({flag[0]+1},{flag[1]+1}).")
+            row, col = cell
+            count = self.count_adjacent_mines(row, col)
+            facts.append(f"number({col},{row},{count}).")  # Note: number(col,row,num) format
+        
         return "\n".join(facts)
 
     def generate_hint(self):
@@ -201,26 +199,17 @@ class MinesweeperApp:
             return
             
         solution = solutions[0]
-        # Debug print
-        print("ASP Solution:", solution)
         
+        # Look for a safe cell (one with a number, not a mine)
         for symbol in solution:
-            if str(symbol.name) != "mine":
-                try:
-                    row, col = symbol.arguments
-                    # Convert from 1-based to 0-based indexing
-                    row_idx = row.number - 1
-                    col_idx = col.number - 1
-                    # Verify indices are valid
-                    if 0 <= row_idx < self.grid_size and 0 <= col_idx < self.grid_size:
-                        hint_message = f"Safe cell at row {row_idx + 1}, column {col_idx + 1}"
-                        messagebox.showinfo("Hint", hint_message)
-                        # Highlight the safe cell
-                        self.cells[row_idx][col_idx].config(bg="lightgreen")
-                        return
-                except Exception as e:
-                    print(f"Error processing hint: {e}")
-                    continue
+            if str(symbol.name) == "number":
+                col, row, num = symbol.arguments
+                
+                if (row.number, col.number) not in self.revealed:
+                    hint_message = f"Safe cell at row {row.number + 1}, column {col.number + 1}"
+                    messagebox.showinfo("Hint", hint_message)
+                    self.cells[row.number][col.number].config(bg="lightgreen")
+                    return
         
         messagebox.showinfo("Hint", "Could not determine a safe move")
 
@@ -235,14 +224,14 @@ class MinesweeperApp:
             
         solution = solutions[0]
         for symbol in solution:
-            if symbol.name == "mine":
-                row, col = symbol.arguments
-                # Mark mines with flags
-                self.toggle_flag(row.number-1, col.number-1)
-            elif symbol.name == "safe":
-                row, col = symbol.arguments
-                # Reveal safe cells
-                self.cell_clicked(row.number-1, col.number-1)
+            if str(symbol.name) == "mine":
+                col, row = symbol.arguments  # Note: ASP returns col,row order
+                # Place flag at mine location
+                self.toggle_flag(row.number, col.number)
+            elif str(symbol.name) == "number":
+                col, row, num = symbol.arguments
+                # Reveal safe cell
+                self.cell_clicked(row.number, col.number)
 
     def new_game(self):
         "new game"
@@ -254,6 +243,10 @@ class MinesweeperApp:
                 self.cells[row][col].config(text="", state="normal", bg="gray")
         while len(self.mines) < self.num_mines:
             self.mines.add((randint(0, self.grid_size - 1), randint(0, self.grid_size - 1)))
+        
+    def reset(self):
+        "reset"
+        self.new_game()
 
     def back_to_menu(self):
         "back to menu"
