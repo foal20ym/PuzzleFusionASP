@@ -2,7 +2,7 @@
 Minesweeper module
 """
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, OptionMenu, StringVar
 from random import randint
 import platform
 from PIL import Image, ImageTk
@@ -31,12 +31,21 @@ class MinesweeperApp:
         self.canvas.pack(fill="both", expand=True)
         self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
 
+        # set up difficulties
+        # (grid size, number of mines)
+        self.difficulties = {
+            "Easy": (8, 10),
+            "Medium": (10, 30),
+            "Hard": (12, 50)
+        }
+        self.difficulty_var = StringVar(self.root)
+        self.difficulty_var.set("Medium")
+        self.grid_size, self.num_mines = self.difficulties[self.difficulty_var.get()]
+
         self.game_over = False
         self.solution = None
         self.solution_numbers = {}
         self.solution_mines = set()
-        self.grid_size = 10  # 10x10 grid
-        self.num_mines = 10
         self.cell_size = 40
         self.cells = []
         self.mines = set()
@@ -50,6 +59,12 @@ class MinesweeperApp:
 
     def create_grid(self):
         "create a grid"
+        # Clear any existing cells
+        for row_cells in self.cells:
+            for button in row_cells:
+                button.destroy()  # Destroy existing buttons
+        self.cells = []  # Reset the cells list
+
         grid_size = 400
         cell_size = grid_size // self.grid_size
         start_x = (self.width - grid_size) // 2
@@ -80,7 +95,7 @@ class MinesweeperApp:
     def create_buttons(self, button_width=80, spacing=10):
         "create buttons"
         button_texts = ["Solve", "Hint", "New Game", "Back"]
-        button_commands = [self.solve, self.generate_hint, self.new_game, self.back_to_menu, self.reset]
+        button_commands = [self.solve, self.generate_hint, self.new_game, self.back_to_menu]
 
         button_height = 30
         grid_size = 400
@@ -90,10 +105,23 @@ class MinesweeperApp:
         total_width = (button_width * len(button_texts)) + (spacing * (len(button_texts) - 1))
         start_x = (self.width - total_width) // 2
 
+        def update_difficulty(selected):
+            self.difficulty_var.set(selected)
+            self.grid_size, self.num_mines = self.difficulties[self.difficulty_var.get()]
+            self.create_grid()  # Recreate the grid with the new size
+            self.new_game()  # Restart game with new difficulty
+
+        difficulty_menu = OptionMenu(self.root, self.difficulty_var, *self.difficulties.keys(), command=update_difficulty)
+        difficulty_menu.config(bg="white", fg="black")
+        difficulty_menu.place(x=start_x, y=y_position + 40)
+
+        # Create the action buttons
         for i, (text, command) in enumerate(zip(button_texts, button_commands)):
             x_position = start_x + i * (button_width + spacing)
             button = Button(self.root, text=text, command=command, bg="white", fg="black")
             button.place(x=x_position, y=y_position, width=button_width, height=button_height)
+
+
 
     def solve_board(self):
         """Solve the entire board using ASP when starting a new game"""
