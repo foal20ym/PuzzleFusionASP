@@ -107,7 +107,6 @@ class SudokuApp:
             if self.entries[row][col].get():
                 return 'break'
             return None
-        
         if event.keysym in ('BackSpace', 'Delete'):
             return None
         return 'break'
@@ -210,7 +209,8 @@ class SudokuApp:
         """
         Start a new Sudoku game.
 
-        This method clears the current grid, resets the game state by calling the "reset" function, and generates a new Sudoku puzzle by calling the "generate_sudoku" function.
+        This method clears the current grid, resets the game state by calling the "reset" function, 
+        and generates a new Sudoku puzzle by calling the "generate_sudoku" function.        
         """
         for row in range(9):
             for col in range(9):

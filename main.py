@@ -8,7 +8,6 @@ Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linu
 Created: Monday January 6, 2025
 """
 import tkinter as tk
-from tkinter import messagebox
 import platform
 from PIL import Image, ImageTk
 from minesweeper_app import MinesweeperApp
