@@ -237,7 +237,6 @@ class SudokuApp:
 
         def update_difficulty(selected):
             self.difficulty_var.set(selected)
-            self.create_grid()  # Recreate the grid with the new board
             self.new_game()  # Restart game with new difficulty
 
         difficulty_menu = OptionMenu(self.root, self.difficulty_var, *self.difficulties.keys(), command=update_difficulty)
