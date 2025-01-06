@@ -19,7 +19,6 @@ class MainMenu:
         self.root.geometry(geometry_string)
 
         self.bg_image = Image.open("BackgroundImages/cabinBackground.jpeg")
-        #self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)

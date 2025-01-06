@@ -12,13 +12,10 @@ class SudokuApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Sudoku Game")
-        #self.width = 896
-        #self.height = 512
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
 
         self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
-#        self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
