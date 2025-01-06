@@ -52,18 +52,7 @@ class SudokuApp:
         self.score = 0
         self.create_grid()
         self.create_buttons()
-        self.create_scoreboard()
         self.generate_sudoku()
-
-    def create_scoreboard(self):
-        "create scoreboard"
-        self.score_label = tk.Label(self.root, text=f"Score: {self.score}", font=("Arial", 14), bg="black")
-        self.canvas.create_window(50, 20, window=self.score_label)
-
-    def update_score(self, points):
-        "update score"
-        self.score += points
-        self.score_label.config(text=f"Score: {self.score}")
 
     def create_grid(self):
         """
