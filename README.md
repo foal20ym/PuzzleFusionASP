@@ -1,12 +1,26 @@
-# Sudoku Solver with ASP
+# Puzzle Games with ASP Solvers
 
-This project is a Sudoku game and solver using Answer Set Programming (ASP) with Clingo.
+A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with intelligent solving capabilities using Answer Set Programming (ASP). The games feature both manual play and automated assistance through Clingo ASP solvers.
 
-## Getting Started
+## Features
 
-### Prerequisites
+- **Sudoku**
+  - Interactive gameplay
+  - Difficulty levels
+  - Intelligent hints
+  - Complete solution generation
 
-Make sure you have Python and Clingo installed on your system.
+- **Minesweeper**
+  - Multiple difficulty settings
+  - Safe move suggestions
+  - Smart flagging system
+
+## Prerequisites
+
+- Python 3.8 or higher
+- Clingo 5.5 or higher
+- Tkinter (usually comes with Python)
+- PIL (Python Imaging Library)
 
 ### Installation and running the application for Mac users:
 1. Clone the repository and navigate to it:
@@ -29,7 +43,7 @@ Make sure you have Python and Clingo installed on your system.
     python3 main.py
     ```
 
-### Installation for linux based systems
+### Installation for Linux/Windows
 
 1. Clone the repository and navigate to it:
 
@@ -47,12 +61,6 @@ Make sure you have Python and Clingo installed on your system.
     make install
     ```
 
-    For mac users:
-
-    ```sh
-    make mac install
-    ```
-
 ## Usage
 
 ### Run the application
@@ -61,13 +69,15 @@ Make sure you have Python and Clingo installed on your system.
 make run
 ```
 
-### Lint
+## Development Tools
+
+### Check code style
 
 ```sh
 make lint
 ```
 
-### Test
+### Run tests
 
 ```sh
 make test
