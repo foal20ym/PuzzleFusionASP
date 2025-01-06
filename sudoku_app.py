@@ -2,7 +2,7 @@
 Suduko app
 """
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, OptionMenu, StringVar
 from random import sample
 from PIL import Image, ImageTk
 import clingo
@@ -18,12 +18,22 @@ class SudokuApp:
         self.height = self.root.winfo_screenheight()
 
         self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
-#        self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
+        # self.bg_image = self.bg_image.resize((self.width, self.height), Image.LANCZOS)
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
         self.canvas.pack(fill="both", expand=True)
         self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
+
+        # set up difficulties
+        # number of initially empty cells per row
+        self.difficulties = {
+            "Easy": 4,
+            "Medium": 6,
+            "Hard": 8
+        }
+        self.difficulty_var = StringVar(self.root)
+        self.difficulty_var.set("Easy")
 
         self.entries = [[None for _ in range(9)] for _ in range(9)]
         self.user_inputs = []
@@ -32,6 +42,7 @@ class SudokuApp:
         self.create_buttons()
         self.create_scoreboard()
         self.generate_sudoku()
+
 
     def create_scoreboard(self):
         "create scoreboard"
@@ -99,7 +110,7 @@ class SudokuApp:
 
         board = [[nums[pattern(r, c)] for c in cols] for r in rows]
 
-        empty_count_per_row = (side // 2) + 1
+        empty_count_per_row = self.difficulties[self.difficulty_var.get()]
         for row in range(9):
             empty_positions = sample(range(9), empty_count_per_row)
             for col in empty_positions:
@@ -223,6 +234,15 @@ class SudokuApp:
             x_position = start_x + i * (button_width + spacing)
             button = tk.Button(self.root, text=text, command=command, width=10)
             button.place(x=x_position, y=y_position, width=button_width, height=button_height)
+
+        def update_difficulty(selected):
+            self.difficulty_var.set(selected)
+            self.create_grid()  # Recreate the grid with the new board
+            self.new_game()  # Restart game with new difficulty
+
+        difficulty_menu = OptionMenu(self.root, self.difficulty_var, *self.difficulties.keys(), command=update_difficulty)
+        difficulty_menu.config(fg="black")
+        difficulty_menu.place(x=start_x, y=y_position + 40)
 
     def back_to_menu(self):
         "back to menu"
