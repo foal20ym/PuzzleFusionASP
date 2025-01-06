@@ -1,16 +1,38 @@
 """
-main module
+Main module
+===========
+
+This module is the main module of the application. It creates the main menu and launches the different games.
+
+Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
+Created: Monday January 6, 2025
 """
 import tkinter as tk
 from tkinter import messagebox
+import platform
 from PIL import Image, ImageTk
 from minesweeper_app import MinesweeperApp
 from sudoku_app import SudokuApp
 
+if platform.system() == "Darwin":
+    from tkmacosx import Button
+else:
+    Button = tk.Button
+
 class MainMenu:
-    "Main menu"
+    """
+    MainMenu Class
+    --------------
+    Provides a main menu GUI with options to launch different games or exit the application.
+    """
+
     def __init__(self, root):
-        "init"
+        """
+        Initialize the main menu interface.
+
+        Args:
+            The __init__ function takes the root (tk.Tk) which is the tkinter window object as an arg.
+        """
         self.root = root
         self.root.title("Main Menu")
         self.width = self.root.winfo_screenwidth()
@@ -28,30 +50,31 @@ class MainMenu:
         self.create_menu()
 
     def create_menu(self):
-        "create menu"
+        """
+        Create the main menu with buttons to navigate to games or exit the application.
+        """
         sudoku_button = tk.Button(self.root, text="Play Sudoku", font=("Arial", 14),
             command=self.launch_sudoku, bg="white", highlightbackground="white", borderwidth=0, width=15)
         self.canvas.create_window(self.width/2, 200, window=sudoku_button)
 
-        ttt_button = tk.Button(self.root, text="Play Tic Tac Toe", font=("Arial", 14),
-            command=self.launch_tic_tac_toe, bg="white", highlightbackground="white", borderwidth=0, width=15)
-        self.canvas.create_window(self.width/2, 250, window=ttt_button)
-
         minesweeper_button = tk.Button(self.root, text="Play Minesweeper", font=("Arial", 14),
             command=self.launch_minesweeper, bg="white", highlightbackground="white", borderwidth=0, width=15)
-        self.canvas.create_window(self.width/2, 300, window=minesweeper_button)
+        self.canvas.create_window(self.width/2, 250, window=minesweeper_button)
 
-        # exit button
-        exit_button = tk.Button(self.root, text="Exit", font=("Arial", 14),
+        exit_button = Button(self.root, text="Exit", font=("Arial", 14),
             command=self.exit_app, bg="red", fg="white", highlightbackground="red", activebackground="red", borderwidth=0)
-        self.canvas.create_window(self.width/2, 350, window=exit_button)
+        self.canvas.create_window(self.width/2, 300, window=exit_button)
 
     def exit_app(self):
-        "exit the whole app"
+        """
+        Exit the application by closing the tkinter window. This will also stop the main loop and works by calling the quit method on the root window.
+        """
         self.root.quit()
 
     def launch_sudoku(self):
-        "launch sudoku"
+        """
+        Launch the Sudoku game application.
+        """
         for widget in self.root.winfo_children():
             widget.destroy()
             self.root.update()
@@ -59,12 +82,10 @@ class MainMenu:
         SudokuApp(self.root)
         self.root.update()
 
-    def launch_tic_tac_toe(self):
-        "launch tic tac toe"
-        messagebox.showinfo("Tic Tac Toe", "Tic Tac Toe game coming soon!")
-
     def launch_minesweeper(self):
-        "launch minesweeper"
+        """
+        Launch the Minesweeper game application.
+        """
         for widget in self.root.winfo_children():
             widget.destroy()
             self.root.update()
