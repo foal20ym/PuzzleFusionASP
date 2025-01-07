@@ -54,8 +54,17 @@ A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with inte
     ```sh
     cd PuzzleFusionASP
     ```
+2. You may need to activate a virtual enviroment. For Linux:
+	```sh
+	python -m venv ./venv
+	source venv/bin/activate.<shell>
+	```
+	<shell> depends on the shell you are using. For example, if you are using fish:
+	```sh
+	source venv/bin/activate.fish
+	```
 
-2. Install the required Python packages. To install all packages at once, run the following command in the terminal:
+3. Install the required Python packages. To install all packages at once, run the following command in the terminal:
 
     ```sh
     make install
