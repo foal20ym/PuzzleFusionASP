@@ -59,7 +59,7 @@ A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with inte
 	python -m venv ./venv
 	source venv/bin/activate.<shell>
 	```
-	<shell> depends on the shell you are using. For example, if you are using fish:
+	The "<shell>"" depends on the shell you are using. For example, if you are using fish:
 	```sh
 	source venv/bin/activate.fish
 	```
