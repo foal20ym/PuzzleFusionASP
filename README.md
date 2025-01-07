@@ -76,6 +76,11 @@ A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with inte
     make install
     ```
 
+    or alternatively, run:
+    ```sh
+	pip install -r requirements.txt
+    ```
+
 ## Usage
 
 ### Run the application
