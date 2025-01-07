@@ -63,6 +63,7 @@ A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with inte
 	```sh
 	source venv/bin/activate.fish
 	```
+	With bash shell it simply is ```sh source venv/bin/activate```
 
 3. Install the required Python packages. To install all packages at once, run the following command in the terminal:
 
