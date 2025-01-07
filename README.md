@@ -83,7 +83,7 @@ A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with inte
 
 ## Usage
 
-If you are unable to execute ```make``` commands, see the Makefile to manually execute the corresponding commands.
+If you are unable to execute ```make``` commands, see the [Makefile]Makefile to manually execute the corresponding commands.
 
 ### Run the application
 
