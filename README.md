@@ -68,6 +68,8 @@ A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with inte
 	 source venv/bin/activate
 	 ```
 
+	 See https://docs.python.org/3/library/venv.html#creating-virtual-environments for more details.
+
 3. Install the required Python packages. To install all packages at once, run the following command in the terminal:
 
     ```sh
