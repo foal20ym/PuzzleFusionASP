@@ -54,14 +54,42 @@ A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with inte
     ```sh
     cd PuzzleFusionASP
     ```
+    or 
+    ```
+    dir PuzzleFusionASP
+    ```
+    for Windows.
 
-2. Install the required Python packages. To install all packages at once, run the following command in the terminal:
+2. You may need to activate a virtual enviroment. For Linux:
+	```sh
+	python -m venv ./venv
+	source venv/bin/activate.<shell>
+	```
+	The "\<shell\>" depends on the shell you are using. For example, if you are using fish:
+	```sh
+	source venv/bin/activate.fish
+	```
+	With bash shell it simply is:
+	 ```sh
+	 source venv/bin/activate
+	 ```
+
+	 See https://docs.python.org/3/library/venv.html#creating-virtual-environments for more details.
+
+3. Install the required Python packages. To install all packages at once, run the following command in the terminal:
 
     ```sh
     make install
     ```
 
+    or alternatively, run:
+    ```sh
+	pip install -r requirements.txt
+    ```
+
 ## Usage
+
+If you are unable to execute ```make``` commands, see the [Makefile](Makefile) to manually execute the corresponding commands.
 
 ### Run the application
 
