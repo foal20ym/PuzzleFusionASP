@@ -1,3 +1,6 @@
+[![Run Pylint](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/pylint.yml/badge.svg)](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/pylint.yml)
+[![Run PyTest](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/pytest.yml/badge.svg)](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/pytest.yml)
+[![Run build](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/run.yml/badge.svg)](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/run.yml)
 # Puzzle Games with ASP Solvers
 
 A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with intelligent solving capabilities using Answer Set Programming (ASP). The games feature both manual play and automated assistance through Clingo ASP solvers.
