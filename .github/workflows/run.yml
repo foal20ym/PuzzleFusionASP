@@ -34,7 +34,32 @@ jobs:
                   python -m pip install --upgrade pip
                   make install
 
+            - name: Install Xvfb and required libraries
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y xvfb libx11-dev libxext-dev libxrender-dev libxtst-dev libxi-dev
+
+            # Start the virtual display in order to be able to start app.
+
             # Finally run
-            # - name: Run code
-            #   run: |
-            #       yes | make run
+            - name: Run Application and Exit After Launch
+              run: |
+                  # Start a virtual display
+                  Xvfb :99 -screen 0 1024x768x16 &
+                  export DISPLAY=:99
+
+                  # Run the application in the background
+                  python main.py &
+                  APP_PID=$!
+
+                  # Wait for the application to initialize
+                  sleep 5
+
+                  # Check if the application is running successfully
+                  if ps -p $APP_PID > /dev/null; then
+                      echo "Application launched successfully. Exiting."
+                      kill $APP_PID
+                  else
+                      echo "Application failed to launch."
+                      exit 1
+                  fi
