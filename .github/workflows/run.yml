@@ -42,9 +42,24 @@ jobs:
             # Start the virtual display in order to be able to start app.
 
             # Finally run
-            - name: Run code and Start Virtual Display
+            - name: Run Application and Exit After Launch
               run: |
+                  # Start a virtual display
                   Xvfb :99 -screen 0 1024x768x16 &
                   export DISPLAY=:99
-                  echo "DISPLAY set to $DISPLAY"
-                  make run
+
+                  # Run the application in the background
+                  python main.py &
+                  APP_PID=$!
+
+                  # Wait for the application to initialize
+                  sleep 5
+
+                  # Check if the application is running successfully
+                  if ps -p $APP_PID > /dev/null; then
+                      echo "Application launched successfully. Exiting."
+                      kill $APP_PID
+                  else
+                      echo "Application failed to launch."
+                      exit 1
+                  fi
