@@ -2,10 +2,11 @@
 Suduko app
 """
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 from random import sample
 from PIL import Image, ImageTk
 import clingo
+from sparql import get_answer
 
 class SudokuApp:
     "Suduko class"
@@ -205,7 +206,7 @@ class SudokuApp:
     def create_buttons(self, button_width=80, spacing=10):
         "create buttons"
         button_texts = ["Solve", "Clear", "Hint", "New Game", "Back"]
-        button_commands = [self.solve, self.clear, self.generate_hint, self.new_game, self.back_to_menu]
+        button_commands = [self.solve, self.clear, self.hint, self.new_game, self.back_to_menu]
 
         button_height = 30
         grid_size = 400
@@ -233,3 +234,28 @@ class SudokuApp:
         self.root.update_idletasks()
         MainMenu(self.root)
         self.root.update()
+
+    def hint(self):
+        try:
+            correct_answer, question = get_answer()  # e.g., returns 4
+        except Exception as err:
+            messagebox.showerror("Error", f"Could not retrieve knowledge: {err}")
+            return
+
+        user_answer = simpledialog.askstring(
+            "Knowledge Question",
+            f"{question}\n"
+        )
+
+        if user_answer is None:
+            return
+
+        user_answer = str(user_answer).lower()
+        correct_answer = [ans.lower() for ans in correct_answer]
+
+        if user_answer in correct_answer:
+            messagebox.showinfo("Correct!", "You got it right! Enjoy your hint.")
+            self.generate_hint()
+        else:
+            messagebox.showerror("Incorrect", "Sorry, that's not correct. No hint for you.")
+
