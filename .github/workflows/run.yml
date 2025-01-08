@@ -35,6 +35,5 @@ jobs:
                   make install
 
             # Finally run
-            # - name: Run code
-            #   run: |
-            #       yes | make run
+            - name: Run code
+              run: make run
