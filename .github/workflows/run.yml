@@ -34,6 +34,14 @@ jobs:
                   python -m pip install --upgrade pip
                   make install
 
+            # Start the virtual display in order to be able to start app.
+            - name: Start virtual display
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y xvfb
+                  Xvfb :99 -screen 0 1024x768x16 &
+                  export DISPLAY=:99
+
             # Finally run
             - name: Run code
               run: make run
