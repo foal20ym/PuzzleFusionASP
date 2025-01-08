@@ -3,7 +3,6 @@ from unittest.mock import patch
 from tkinter import Tk
 from minesweeper_app import MinesweeperApp
 
-
 class TestMinesweeperApp(unittest.TestCase):
     def setUp(self):
         self.root = Tk()
