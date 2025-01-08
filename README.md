@@ -54,6 +54,12 @@ A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with inte
     ```sh
     cd PuzzleFusionASP
     ```
+    or 
+    ```
+    dir PuzzleFusionASP
+    ```
+    for Windows.
+
 2. You may need to activate a virtual enviroment. For Linux:
 	```sh
 	python -m venv ./venv
