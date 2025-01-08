@@ -1,6 +1,14 @@
 """
-Minesweeper module
+Minesweeper Game
+================
+
+This code implements a Minesweeper game using a graphical user interface (GUI) built with 
+tkinter. The game makes use of Answer Set Programming (ASP) through Clingo to solve the board.
+
+Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
+Created: Monday January 6, 2025
 """
+
 import tkinter as tk
 from tkinter import messagebox, OptionMenu, StringVar
 from random import randint
@@ -8,16 +16,25 @@ import platform
 from PIL import Image, ImageTk
 import clingo
 
-# Check if MacOS is used and changes to tkmacosx if that is the case
-is_macos = platform.system() == "Darwin"
-if is_macos:
+if platform.system() == "Darwin":
     from tkmacosx import Button
 else:
     Button = tk.Button
 
 class MinesweeperApp:
-    "Minesweeper app"
+    """
+    MinesweeperApp Class
+    --------------------
+    This class represents the Minesweeper game using tkinter for GUI and Clingo for solving the board.
+    """
+
     def __init__(self, root):
+        """
+        Initializes the Minesweeper game application.
+
+        Args:
+            The __init__ function takes the root (tk.Tk) which is the tkinter window object as an arg.
+        """
         self.root = root
         self.root.title("Minesweeper Game")
         self.width = self.root.winfo_screenwidth()
@@ -31,8 +48,6 @@ class MinesweeperApp:
         self.canvas.pack(fill="both", expand=True)
         self.canvas.create_image(0, 0, image=self.bg_photo, anchor="nw")
 
-        # set up difficulties
-        # (grid size, number of mines)
         self.difficulties = {
             "Easy": (8, 10),
             "Medium": (10, 30),
@@ -58,12 +73,15 @@ class MinesweeperApp:
         self.new_game()
 
     def create_grid(self):
-        "create a grid"
-        # Clear any existing cells
+        """
+        Creates the game grid with buttons representing cells.
+
+        This function clears any existing grid and recreates it based on the current grid size.
+        """
         for row_cells in self.cells:
             for button in row_cells:
-                button.destroy()  # Destroy existing buttons
-        self.cells = []  # Reset the cells list
+                button.destroy()
+        self.cells = []
 
         grid_size = 400
         cell_size = grid_size // self.grid_size
@@ -93,48 +111,60 @@ class MinesweeperApp:
             self.cells.append(row_cells)
 
     def create_buttons(self, button_width=80, spacing=10):
-        "create buttons"
+        """
+        Creates control buttons for solving, hinting, starting a new game, and going back to the menu.
+
+        Args:
+            button_width (int): The width of each control button.
+            spacing (int): The spacing between the control buttons.
+        """
         button_texts = ["Solve", "Hint", "New Game", "Back"]
         button_commands = [self.solve, self.generate_hint, self.new_game, self.back_to_menu]
 
         button_height = 30
         grid_size = 400
         start_y = (self.height - grid_size) // 2
-        y_position = start_y + grid_size + 10  # Space between grid and buttons
+        y_position = start_y + grid_size + 10
 
         total_width = (button_width * len(button_texts)) + (spacing * (len(button_texts) - 1))
         start_x = (self.width - total_width) // 2
 
         def update_difficulty(selected):
+            """
+            Update the game difficulty.
+
+            This method sets the difficulty level based on the selected option,
+            updates the grid size and number of mines accordingly, recreates the grid,
+            and restarts the game with the new difficulty settings.
+
+            Args:
+                selected (str): The selected difficulty level.
+            """
             self.difficulty_var.set(selected)
             self.grid_size, self.num_mines = self.difficulties[self.difficulty_var.get()]
-            self.create_grid()  # Recreate the grid with the new size
-            self.new_game()  # Restart game with new difficulty
+            self.create_grid()
+            self.new_game()
 
         difficulty_menu = OptionMenu(self.root, self.difficulty_var, *self.difficulties.keys(), command=update_difficulty)
         difficulty_menu.config(bg="white", fg="black")
         difficulty_menu.place(x=start_x, y=y_position + 40)
 
-        # Create the action buttons
         for i, (text, command) in enumerate(zip(button_texts, button_commands)):
             x_position = start_x + i * (button_width + spacing)
             button = Button(self.root, text=text, command=command, bg="white", fg="black")
             button.place(x=x_position, y=y_position, width=button_width, height=button_height)
 
-
-
     def solve_board(self):
-        """Solve the entire board using ASP when starting a new game"""
+        """
+        Solves the entire board using Answer Set Programming (ASP) when starting a new game.
+        """
         facts = []
-        # Define grid size constants
         facts.append(f"#const r={self.grid_size}.")
         facts.append(f"#const c={self.grid_size}.")
 
-        # Add known mine positions
         for row, col in self.mines:
             facts.append(f"mine({col},{row}).")
 
-        # Add initial numbers
         for row in range(self.grid_size):
             for col in range(self.grid_size):
                 if (row, col) not in self.mines:
@@ -157,7 +187,13 @@ class MinesweeperApp:
                     self.solution_numbers[(row.number, col.number)] = num.number
 
     def cell_clicked(self, row, col):
-        "cell clicked"
+        """
+        Handles the event when a cell is clicked.
+
+        Args:
+            row (int): The row index of the clicked cell.
+            col (int): The column index of the clicked cell.
+        """
         if self.game_over or (row, col) in self.flags:
             return
         if (row, col) in self.mines:
@@ -173,7 +209,13 @@ class MinesweeperApp:
             self.reset()
 
     def reveal_cell(self, row, col):
-        "reveal cell"
+        """
+        Reveals a cell by updating its state and displaying the adjacent mine count.
+
+        Args:
+            row (int): The row index of the cell.
+            col (int): The column index of the cell.
+        """
         if (row, col) in self.revealed:
             return
         self.revealed.add((row, col))
@@ -189,7 +231,16 @@ class MinesweeperApp:
                         self.cells[row][col].config(bg="lightgray")
 
     def count_adjacent_mines(self, row, col):
-        "count adjacent mines"
+        """
+        Counts the number of adjacent mines for a given cell.
+
+        Args:
+            row (int): The row index of the cell.
+            col (int): The column index of the cell.
+
+        Returns:
+            int: The number of adjacent mines.
+        """
         count = 0
         for r in range(max(0, row - 1), min(self.grid_size, row + 2)):
             for c in range(max(0, col - 1), min(self.grid_size, col + 2)):
@@ -198,7 +249,13 @@ class MinesweeperApp:
         return count
 
     def toggle_flag(self, row, col):
-        "toggle flag"
+        """
+        Toggles a flag on or off for a given cell.
+
+        Args:
+            row (int): The row index of the cell.
+            col (int): The col index of the cell.
+        """
         if (row, col) in self.revealed:
             return
         if (row, col) in self.flags:
@@ -209,25 +266,37 @@ class MinesweeperApp:
             self.cells[row][col].config(text="F")
 
     def reveal_mines(self):
-        "reveal mines"
+        """
+        Reveal all mines on the grid.
+
+        This method iterates through all the mine locations and updates the 
+        corresponding grid cells to display a mine symbol ('M') with a red background.
+        """
         for mine in self.mines:
             self.cells[mine[0]][mine[1]].config(text="M", bg="red")
 
     def asp_solver(self, facts):
-        """Solve using Clingo ASP solver"""
+        """
+        Solve the Minesweeper puzzle using the Clingo ASP solver.
+
+        This method creates a Clingo control object, loads the ASP program and facts,
+        grounds the program, and solves it. The solutions are then returned ad a list of symbols.
+
+        Args:
+            facts (str): The facts representing the current game state.
+
+        Returns:
+            list: A list of solutions provided by the ASP solver.
+        """
         try:
-            # Create control object
             ctl = clingo.Control()
 
-            # Load ASP program
             with open(self.asp_rules, 'r', encoding='utf-8') as f:
                 program = f.read()
 
-            # Add program and facts
             ctl.add("base", [], program)
             ctl.add("base", [], facts)
 
-            # Ground and solve
             ctl.ground([("base", [])])
             solutions = []
 
@@ -242,13 +311,19 @@ class MinesweeperApp:
             return []
 
     def get_current_facts(self):
-        """Generate facts for current game state"""
+        """
+        Generate facts representing the current game state.
+
+        This method creates a list of facts based on the current state of the game,
+        including the grid size and the numbers revealed on the grid.
+
+        Returns:
+            str: A string containing the facts for the current game state.
+        """
         facts = []
-        # Define grid size constants
         facts.append(f"#const r={self.grid_size}.")
         facts.append(f"#const c={self.grid_size}.")
 
-        # Add revealed numbers
         for cell in self.revealed:
             row, col = cell
             count = self.count_adjacent_mines(row, col)
@@ -257,12 +332,16 @@ class MinesweeperApp:
         return "\n".join(facts)
 
     def generate_hint(self):
-        """Get next safe move from stored solution"""
+        """
+        Provide a hint for the next safe move.
+
+        This method highlights the next safe cell to reveal based on the stored solution.
+        If no solution is available or no safe moves are left, it shows a message indicating that no more moves are available.
+        """
         if not self.solution:
             messagebox.showinfo("Hint", "No solution available!")
             return
 
-        # Look for an unrevealed safe cell
         for pos, num in self.solution_numbers.items():
             if pos not in self.revealed and pos not in self.mines:
                 row, col = pos
@@ -272,18 +351,21 @@ class MinesweeperApp:
         messagebox.showinfo("Hint", "No more safe moves available!")
 
     def solve(self):
-        """Reveal all safe cells using stored solution"""
+        """
+        Reveal all safe cells and flag all mines using the stored solution.
+
+        This method uses the stored solution to place flags on all mines and reveal all safe cells.
+        If no solution is available, it shows a message saying that. If the game is solved, it shows a congratulatory message.
+        """
         if not self.solution:
             messagebox.showinfo("Solver", "No solution available!")
             return
 
-        # Place flags on all mines
         for row, col in self.solution_mines:
             if (row, col) not in self.flags:
                 self.flags.add((row, col))
                 self.cells[row][col].config(text="F")
 
-        # Reveal all safe cells
         for pos, num in self.solution_numbers.items():
             row, col = pos
             if pos not in self.revealed and pos not in self.mines:
@@ -298,7 +380,11 @@ class MinesweeperApp:
         self.reset()
 
     def new_game(self):
-        "new game"
+        """
+        Start a new game.
+
+        This method resets the game state, clears the grid, places new mines, and solves the board.
+        """
         self.mines = set()
         self.revealed = set()
         self.flags = set()
@@ -307,24 +393,29 @@ class MinesweeperApp:
         self.solution_mines = set()
         self.game_over = False
 
-        # Reset grid
         for row in range(self.grid_size):
             for col in range(self.grid_size):
                 self.cells[row][col].config(text="", state="normal", bg="gray")
 
-        # Place mines
         while len(self.mines) < self.num_mines:
             self.mines.add((randint(0, self.grid_size - 1), randint(0, self.grid_size - 1)))
 
-        # Solve board
         self.solve_board()
 
     def reset(self):
-        "reset"
+        """
+        Reset the game.
+
+        This method resets the game and starts a new one by calling the new_game method.
+        """
         self.new_game()
 
     def back_to_menu(self):
-        "back to menu"
+        """
+        Return to the main menu.
+
+        This method destroys the current game widgets and initializes the main menu.
+        """
         from main import MainMenu
         for widget in self.root.winfo_children():
             widget.destroy()

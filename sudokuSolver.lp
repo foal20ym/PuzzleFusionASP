@@ -1,3 +1,4 @@
+% SOURCE: https://github.com/atreyasha/clingo-solvers/blob/main/src/sudoku.lp
 % define size of subgrid, which is the square root of row/column length
 #const n=3.
 

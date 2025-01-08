@@ -1,38 +1,98 @@
-# Sudoku Solver with ASP
+[![Run Pylint](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/pylint.yml/badge.svg)](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/pylint.yml)
+[![Run PyTest](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/pytest.yml/badge.svg)](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/pytest.yml)
+[![Run build](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/run.yml/badge.svg)](https://github.com/foal20ym/PuzzleFusionASP/actions/workflows/run.yml)
+# Puzzle Games with ASP Solvers
 
-This project is a Sudoku game and solver using Answer Set Programming (ASP) with Clingo.
+A collection of classic puzzle games (Sudoku and Minesweeper) enhanced with intelligent solving capabilities using Answer Set Programming (ASP). The games feature both manual play and automated assistance through Clingo ASP solvers.
 
-## Getting Started
+## Features
 
-### Prerequisites
+- **Sudoku**
+  - Interactive gameplay
+  - Difficulty levels
+  - Intelligent hints
+  - Complete solution generation
 
-Make sure you have Python and Clingo installed on your system.
+- **Minesweeper**
+  - Multiple difficulty settings
+  - Safe move suggestions
+  - Smart flagging system
 
-### Installation
+## Prerequisites
+
+- Python 3.8 or higher
+- Clingo 5.5 or higher
+- Tkinter (usually comes with Python)
+- PIL (Python Imaging Library)
+
+### Installation and running the application for Mac users:
+1. Clone the repository and navigate to it:
+
+    ```sh
+    git clone https://github.com/foal20ym/PuzzleFusionASP.git
+    ```
+
+    ```sh
+    cd PuzzleFusionASP
+    ```
+
+2. Install the required Python packages. To install all packages at once, run the following command in the terminal:
+    ```sh
+    pip install -r requirements.txt
+    ```
+
+3. Run the program with the following command in the terminal:
+    ```sh
+    python3 main.py
+    ```
+
+### Installation for Linux/Windows
 
 1. Clone the repository and navigate to it:
 
     ```sh
-    git clone https://github.com/foal20ym/ASPSudokuSolver.git
+    git clone https://github.com/foal20ym/PuzzleFusionASP.git
     ```
 
     ```sh
-    cd ASPSudokuSolver
+    cd PuzzleFusionASP
     ```
+    or 
+    ```
+    dir PuzzleFusionASP
+    ```
+    for Windows.
 
-2. Install the required Python packages. To install all packages at once, run the following command in the terminal:
+2. You may need to activate a virtual enviroment. For Linux:
+	```sh
+	python -m venv ./venv
+	source venv/bin/activate.<shell>
+	```
+	The "\<shell\>" depends on the shell you are using. For example, if you are using fish:
+	```sh
+	source venv/bin/activate.fish
+	```
+	With bash shell it simply is:
+	 ```sh
+	 source venv/bin/activate
+	 ```
+
+	 See https://docs.python.org/3/library/venv.html#creating-virtual-environments for more details.
+
+3. Install the required Python packages. To install all packages at once, run the following command in the terminal:
 
     ```sh
     make install
     ```
 
-    For mac users:
-
+    or alternatively, run:
     ```sh
-    make mac install
+	pip install -r requirements.txt
     ```
 
 ## Usage
+
+If you are unable to execute ```make``` commands, see the [Makefile](Makefile) to manually execute the corresponding commands.
 
 ### Run the application
 
@@ -40,13 +100,15 @@ Make sure you have Python and Clingo installed on your system.
 make run
 ```
 
-### Lint
+## Development Tools
+
+### Check code style
 
 ```sh
 make lint
 ```
 
-### Test
+### Run tests
 
 ```sh
 make test
