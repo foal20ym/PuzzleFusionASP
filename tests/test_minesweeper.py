@@ -23,14 +23,14 @@ class TestMinesweeperApp(unittest.TestCase):
         self.assertEqual(len(self.app.revealed), 0)
         self.assertEqual(len(self.app.flags), 0)
 
-    @patch('minesweeper_app.messagebox')
-    def test_cell_clicked_game_over2(self, mock_messagebox):
+    @patch('tkinter.messagebox.showerror')
+    def test_cell_clicked_game_over(self, mock_showerror):
         self.app.mines.add((0, 0))
         
         with patch.object(self.app, 'reset', return_value=None):
             self.app.cell_clicked(0, 0)
             self.assertTrue(self.app.game_over)
-            mock_messagebox.showerror.assert_called_once_with("Game Over", "You clicked on a mine!")
+            mock_showerror.assert_called_once_with("Game Over", "You clicked on a mine!")
 
     def test_toggle_flag(self):
         self.app.toggle_flag(0, 0)
