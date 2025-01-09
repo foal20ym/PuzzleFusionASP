@@ -10,8 +10,8 @@ Created: Monday January 6, 2025
 import tkinter as tk
 import platform
 from PIL import Image, ImageTk
-from minesweeper_app import MinesweeperApp
-from sudoku_app import SudokuApp
+from apps.minesweeper_app import MinesweeperApp
+from apps.sudoku_app import SudokuApp
 
 if platform.system() == "Darwin":
     from tkmacosx import Button
@@ -39,7 +39,7 @@ class MainMenu:
         geometry_string = str(self.width) + "x" + str(self.height)
         self.root.geometry(geometry_string)
 
-        self.bg_image = Image.open("BackgroundImages/cabinBackground.jpeg")
+        self.bg_image = Image.open("assets/cabinBackground.jpeg")
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)

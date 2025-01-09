@@ -1,6 +1,6 @@
-import unittest
-from tkinter import Tk
 from main import MainMenu
+from tkinter import Tk
+import unittest
 
 class TestMainMenu(unittest.TestCase):
     def setUp(self):

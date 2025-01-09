@@ -1,6 +1,6 @@
-import unittest
+from apps.sudoku_app import SudokuApp
 from tkinter import Tk
-from sudoku_app import SudokuApp
+import unittest
 from unittest.mock import MagicMock
 
 class TestSudokuApp(unittest.TestCase):

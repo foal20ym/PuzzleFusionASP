@@ -39,7 +39,7 @@ class MinesweeperApp:
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
 
-        self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
+        self.bg_image = Image.open("assets/christmasTownImage.jpg")
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
@@ -64,7 +64,7 @@ class MinesweeperApp:
         self.mines = set()
         self.revealed = set()
         self.flags = set()
-        self.asp_rules = "minesweeperSolver.lp"
+        self.asp_rules = "ASPSolvers/minesweeperSolver.lp"
 
         self.create_grid()
         self.create_buttons()

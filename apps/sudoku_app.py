@@ -33,7 +33,7 @@ class SudokuApp:
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
 
-        self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
+        self.bg_image = Image.open("assets/christmasTownImage.jpg")
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
@@ -224,7 +224,7 @@ class SudokuApp:
         """
         ctl = clingo.Control()
         ctl.add("base", [], facts)
-        with open("sudokuSolver.lp", encoding="UTF-8") as f:
+        with open("ASPSolvers/sudokuSolver.lp", encoding="UTF-8") as f:
             ctl.add("base", [], f.read())
         ctl.ground([("base", [])])
 
