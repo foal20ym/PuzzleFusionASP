@@ -13,3 +13,7 @@ tkmacosx==1.0.5
 tomlkit==0.13.2
 SPARQLWrapper
 pyyaml
+pytest 
+pillow 
+tk 
+PyYAML
