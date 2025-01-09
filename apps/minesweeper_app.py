@@ -8,8 +8,9 @@ tkinter. The game makes use of Answer Set Programming (ASP) through Clingo to so
 Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
 Created: Monday January 6, 2025
 """
+from apps.sparql_app import get_answer
 import tkinter as tk
-from tkinter import messagebox, OptionMenu, StringVar
+from tkinter import messagebox, OptionMenu, StringVar, simpledialog
 from random import randint
 import platform
 from PIL import Image, ImageTk
@@ -117,7 +118,7 @@ class MinesweeperApp:
             spacing (int): The spacing between the control buttons.
         """
         button_texts = ["Solve", "Hint", "New Game", "Back"]
-        button_commands = [self.solve, self.generate_hint, self.new_game, self.back_to_menu]
+        button_commands = [self.solve, self.generate_hint_question, self.new_game, self.back_to_menu]
 
         button_height = 30
         grid_size = 400
@@ -328,8 +329,40 @@ class MinesweeperApp:
             facts.append(f"number({col},{row},{count}).")
 
         return "\n".join(facts)
+    
+    def generate_hint_question(self):
+            """
+            Provides a hint to the user by asking a question from the YAGO knowledge base.
 
-    def generate_hint(self):
+            This method attempts to retrieve a correct answer and a question. It then prompts the user
+            with the question using a simple dialog box. If the user's answer matches any of the correct
+            answers, a success message is shown and a hint is generated. If the answer is incorrect, an
+            error message is displayed and no hint is provided.
+            """
+            try:
+                correct_answer, question = get_answer()
+            except Exception as err:
+                messagebox.showerror("Error", f"Could not retrieve knowledge: {err}")
+                return
+
+            user_answer = simpledialog.askstring(
+                "Knowledge Question",
+                f"{question}\n"
+            )
+
+            if user_answer is None:
+                return
+
+            user_answer = str(user_answer).lower()
+            correct_answer = [ans.lower() for ans in correct_answer]
+
+            if user_answer in correct_answer:
+                messagebox.showinfo("Correct!", "You got it right! Enjoy your hint.")
+                self.generate_asp_hint()
+            else:
+                messagebox.showerror("Incorrect", "Sorry, that's not correct. No hint for you.")
+
+    def generate_asp_hint(self):
         """
         Provide a hint for the next safe move.
 
