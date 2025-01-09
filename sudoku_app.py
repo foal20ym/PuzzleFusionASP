@@ -231,7 +231,7 @@ class SudokuApp:
         models = []
         ctl.solve(on_model=lambda model: models.append(model.symbols(atoms=True)))
         return models
-    
+
     def generate_hint_question(self):
         """
         Provides a hint to the user by asking a question from the YAGO knowledge base.

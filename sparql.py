@@ -1,14 +1,29 @@
-import yaml
+"""
+sparql.py
+
+This module provides functions to interact with the YAGO knowledge base using SPARQL queries.
+It includes functionality to load questions from a YAML configuration file, retrieve all entities
+of a specific type, and generate SPARQL queries based on predefined questions.
+
+Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
+Created: Monday January 8, 2025
+"""
 import random
 from SPARQLWrapper import SPARQLWrapper, JSON
+import yaml
 
-# Load questions from the YAML file
 def load_questions():
-    with open("conf.yaml", "r") as file:
+    """
+    Loads questions from a YAML configuration file.
+    """
+    with open("conf.yaml", "r",  encoding="utf-8") as file:
         config = yaml.safe_load(file)
     return config["questions"]
 
 def get_all(tpe, prop):
+    """
+    Retrieves all entities of a specified type from the YAGO knowledge base.
+    """
     sparql = SPARQLWrapper("https://yago-knowledge.org/sparql/query")
     sparql.setReturnFormat(JSON)
     sparql.setQuery(f"""
@@ -22,13 +37,16 @@ def get_all(tpe, prop):
         }}
     """
     )
-
+    print(prop)
     response = sparql.queryAndConvert()
     things = [result["thing"]["value"] for result in response["results"]["bindings"]]
     filtered = [s for s in things if ("u0028" or "u0029") not in s]
     return filtered
 
 def get_query(question, entity):
+    """
+    Generates a SPARQL query based on a given question and entity.
+    """
     if "How many band members" in question:
         return f"""
             PREFIX schema: <http://schema.org/>
@@ -76,10 +94,22 @@ def get_query(question, entity):
             }}
         LIMIT 1
         """
-    
+    return f"""
+            PREFIX schema: <http://schema.org/>
+            PREFIX yago: <http://yago-knowledge.org/resource/>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT DISTINCT ?thing
+            WHERE {{
+                yago:{entity} yago:capital ?thing . 
+            }}
+        LIMIT 1
+        """
 
 def get_answer():
-
+    """
+    Retrieves a random question and its corresponding answer from the YAGO knowledge base.
+    """
     questions = load_questions()
     question = random.choice(questions)
 
