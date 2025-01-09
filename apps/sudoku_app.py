@@ -55,6 +55,8 @@ class SudokuApp:
         self.create_buttons()
         self.generate_sudoku()
 
+        self.use_sparql_queries = False
+
     def create_grid(self):
         """
         Create the Sudoku grid.
@@ -241,6 +243,12 @@ class SudokuApp:
         answers, a success message is shown and a hint is generated. If the answer is incorrect, an
         error message is displayed and no hint is provided.
         """
+
+        # toggle to use or not to use the whole sparql thingy
+        if not self.use_sparql_queries:
+            self.generate_asp_hint()
+            return
+        
         try:
             correct_answer, question = get_answer()
         except Exception as err:
@@ -336,8 +344,8 @@ class SudokuApp:
             button_width (int): The width of each control button.
             spacing (int): The spacing between the control buttons.
         """
-        button_texts = ["Solve", "Clear", "Hint", "New Game", "Back"]
-        button_commands = [self.solve, self.clear, self.generate_hint_question, self.new_game, self.back_to_menu]
+        button_texts = ["Solve", "Clear", "Hint", "New Game", "SPARQL?", "Back"]
+        button_commands = [self.solve, self.clear, self.generate_hint_question, self.new_game, self.toggle_sparql, self.back_to_menu]
 
         button_height = 30
         grid_size = 400
@@ -363,6 +371,17 @@ class SudokuApp:
         difficulty_menu = OptionMenu(self.root, self.difficulty_var, *self.difficulties.keys(), command=update_difficulty)
         difficulty_menu.config(fg="black")
         difficulty_menu.place(x=start_x, y=y_position + 40)
+
+    def toggle_sparql(self):
+        """
+        Toggle the use of SPARQL queries.
+    
+        This method toggles the use_sparql_queries attribute between True and False
+        and updates the button text accordingly.
+        """
+        self.use_sparql_queries = not self.use_sparql_queries
+        status = "ON" if self.use_sparql_queries else "OFF"
+        messagebox.showinfo("SPARQL Toggle", f"SPARQL queries are now {status}.")
 
     def back_to_menu(self):
         """
