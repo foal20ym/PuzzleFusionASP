@@ -9,10 +9,11 @@ Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linu
 Created: Monday January 6, 2025
 """
 import tkinter as tk
-from tkinter import messagebox, OptionMenu, StringVar
+from tkinter import messagebox, OptionMenu, StringVar, simpledialog
 from random import sample
 from PIL import Image, ImageTk
 import clingo
+from sparql import get_answer
 
 class SudokuApp:
     """
@@ -230,8 +231,40 @@ class SudokuApp:
         models = []
         ctl.solve(on_model=lambda model: models.append(model.symbols(atoms=True)))
         return models
+    
+    def generate_hint_question(self):
+        """
+        Provides a hint to the user by asking a question from the YAGO knowledge base.
 
-    def generate_hint(self):
+        This method attempts to retrieve a correct answer and a question. It then prompts the user
+        with the question using a simple dialog box. If the user's answer matches any of the correct
+        answers, a success message is shown and a hint is generated. If the answer is incorrect, an
+        error message is displayed and no hint is provided.
+        """
+        try:
+            correct_answer, question = get_answer()
+        except Exception as err:
+            messagebox.showerror("Error", f"Could not retrieve knowledge: {err}")
+            return
+
+        user_answer = simpledialog.askstring(
+            "Knowledge Question",
+            f"{question}\n"
+        )
+
+        if user_answer is None:
+            return
+
+        user_answer = str(user_answer).lower()
+        correct_answer = [ans.lower() for ans in correct_answer]
+
+        if user_answer in correct_answer:
+            messagebox.showinfo("Correct!", "You got it right! Enjoy your hint.")
+            self.generate_asp_hint()
+        else:
+            messagebox.showerror("Incorrect", "Sorry, that's not correct. No hint for you.")
+
+    def generate_asp_hint(self):
         """
         Generate a hint for the next move in the Sudoku puzzle.
 
@@ -304,11 +337,10 @@ class SudokuApp:
             spacing (int): The spacing between the control buttons.
         """
         button_texts = ["Solve", "Clear", "Hint", "New Game", "Back"]
-        button_commands = [self.solve, self.clear, self.generate_hint, self.new_game, self.back_to_menu]
+        button_commands = [self.solve, self.clear, self.generate_hint_question, self.new_game, self.back_to_menu]
 
         button_height = 30
         grid_size = 400
-        cell_size = grid_size // 9
         start_y = (self.height - grid_size) // 2
         y_position = start_y + grid_size + 1
 
