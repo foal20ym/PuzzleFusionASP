@@ -39,7 +39,6 @@ class MinesweeperApp:
         self.root.title("Minesweeper Game")
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
-        # self.height = self.root.winfo_screenheight() // 2 # Use this when on Ubuntu and using Sway
 
         self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
@@ -54,7 +53,7 @@ class MinesweeperApp:
             "Hard": (12, 50)
         }
         self.difficulty_var = StringVar(self.root)
-        self.difficulty_var.set("Medium")
+        self.difficulty_var.set("Easy")
         self.grid_size, self.num_mines = self.difficulties[self.difficulty_var.get()]
 
         self.game_over = False
