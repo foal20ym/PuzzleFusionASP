@@ -376,8 +376,8 @@ class SudokuApp:
         """
         Toggle the use of SPARQL queries.
     
-        This method toggles the use_sparql_queries attribute between True and False
-        and updates the button text accordingly.
+        Toggles the use_sparql_queries boolean between True and False
+        and shows feedback to user.
         """
         self.use_sparql_queries = not self.use_sparql_queries
         status = "ON" if self.use_sparql_queries else "OFF"
