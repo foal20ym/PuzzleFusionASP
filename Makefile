@@ -12,8 +12,8 @@ check:
 lint:
 	pylint *.py #tests/**/*.py
 
-#test:
-#	pytest -v
+test:
+	python -m unittest discover
 
 install:
 	pip install -r requirements.txt
