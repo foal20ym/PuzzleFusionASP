@@ -1,0 +1,141 @@
+"""
+sparql.py
+
+This module provides functions to interact with the YAGO knowledge base using SPARQL queries.
+It includes functionality to load questions from a YAML configuration file, retrieve all entities
+of a specific type, and generate SPARQL queries based on predefined questions.
+
+Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
+Created: Monday January 8, 2025
+"""
+import random
+from SPARQLWrapper import SPARQLWrapper, JSON
+import yaml
+
+def load_questions():
+    """
+    Loads questions from a YAML configuration file.
+    """
+    with open("conf.yaml", "r",  encoding="utf-8") as file:
+        config = yaml.safe_load(file)
+    return config["questions"]
+
+def get_all(tpe, prop):
+    """
+    Retrieves all entities of a specified type from the YAGO knowledge base.
+    """
+    sparql = SPARQLWrapper("https://yago-knowledge.org/sparql/query")
+    sparql.setReturnFormat(JSON)
+    sparql.setQuery(f"""
+        PREFIX schema: <http://schema.org/>
+        PREFIX yago: <http://yago-knowledge.org/resource/>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        SELECT DISTINCT ?thing
+        WHERE {{
+            ?thing a {tpe} .
+        }}
+    """
+    )
+    print(prop)
+    response = sparql.queryAndConvert()
+    things = [result["thing"]["value"] for result in response["results"]["bindings"]]
+    filtered = [s for s in things if ("u0028" or "u0029") not in s]
+    return filtered
+
+def get_query(question, entity):
+    """
+    Generates a SPARQL query based on a given question and entity.
+    """
+    if "How many band members" in question:
+        return f"""
+            PREFIX schema: <http://schema.org/>
+            PREFIX yago: <http://yago-knowledge.org/resource/>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT (COUNT(DISTINCT ?thing) AS ?count) 
+            WHERE {{
+                ?thing schema:memberOf yago:{entity} .
+            }}
+        """
+    elif "Can you name a band member" in question:
+        return f"""
+            PREFIX schema: <http://schema.org/>
+            PREFIX yago: <http://yago-knowledge.org/resource/>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT DISTINCT ?thing
+            WHERE {{
+                ?thing schema:memberOf yago:{entity} . 
+            }}
+        LIMIT 10
+        """
+    elif "Who is the leader of" in question:
+        return f"""
+            PREFIX schema: <http://schema.org/>
+            PREFIX yago: <http://yago-knowledge.org/resource/>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT DISTINCT ?thing
+            WHERE {{
+                yago:{entity} schema:leader ?thing . 
+            }}
+        LIMIT 1
+        """
+    elif "What is the capital of" in question:
+        return f"""
+            PREFIX schema: <http://schema.org/>
+            PREFIX yago: <http://yago-knowledge.org/resource/>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT DISTINCT ?thing
+            WHERE {{
+                yago:{entity} yago:capital ?thing . 
+            }}
+        LIMIT 1
+        """
+    return f"""
+            PREFIX schema: <http://schema.org/>
+            PREFIX yago: <http://yago-knowledge.org/resource/>
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            SELECT DISTINCT ?thing
+            WHERE {{
+                yago:{entity} yago:capital ?thing . 
+            }}
+        LIMIT 1
+        """
+
+def get_answer():
+    """
+    Retrieves a random question and its corresponding answer from the YAGO knowledge base.
+    """
+    questions = load_questions()
+    question = random.choice(questions)
+
+    q_text = question["text"]
+    q_type = question["type"]
+    q_property = question["property"]
+
+    entities = get_all(q_type, q_property)
+
+    results = []
+    while not results:
+        entity = random.choice(entities)
+        entity = entity.split('/')[-1]
+
+        sparql = SPARQLWrapper("https://yago-knowledge.org/sparql/query")
+        sparql.setReturnFormat(JSON)
+
+        formulated_question = q_text.replace("?", entity.replace("_", " ")) + "?"
+
+        q = get_query(q_text, entity)
+        sparql.setQuery(q)
+        response = sparql.queryAndConvert()
+        results = response["results"]["bindings"]
+
+    if "count" in results[0]:
+        return f"{results[0]['count']['value']} members", formulated_question
+
+    things = [result["thing"]["value"].split('/')[-1].replace("_", " ") for result in results]
+    return things, formulated_question

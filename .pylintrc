@@ -446,7 +446,11 @@ disable=raw-checker-failed,
 		R0902,  # max attributes
 		W0311,	# bad-indentation
 		E0611,	# no-name-in-module
-		W0702	# bare-except
+		W0702,	# bare-except
+		C0303,	# trailing whitespace
+		E1121,	# too many positional arguments
+		R1705,	# Unnecessary "elif" after "return"
+
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
