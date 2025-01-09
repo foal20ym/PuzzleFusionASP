@@ -8,12 +8,12 @@ tkinter. The game makes use of Answer Set Programming (ASP) through Clingo to so
 Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
 Created: Monday January 6, 2025
 """
+from apps.sparql_app import get_answer
 import tkinter as tk
 from tkinter import messagebox, OptionMenu, StringVar, simpledialog
 from random import sample
 from PIL import Image, ImageTk
 import clingo
-from sparql import get_answer
 
 class SudokuApp:
     """
@@ -33,7 +33,7 @@ class SudokuApp:
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
 
-        self.bg_image = Image.open("BackgroundImages/christmasTownImage.jpg")
+        self.bg_image = Image.open("assets/christmasTownImage.jpg")
         self.bg_photo = ImageTk.PhotoImage(self.bg_image)
 
         self.canvas = tk.Canvas(self.root, width=self.width, height=self.height)
@@ -224,7 +224,7 @@ class SudokuApp:
         """
         ctl = clingo.Control()
         ctl.add("base", [], facts)
-        with open("sudokuSolver.lp", encoding="UTF-8") as f:
+        with open("ASPSolvers/sudokuSolver.lp", encoding="UTF-8") as f:
             ctl.add("base", [], f.read())
         ctl.ground([("base", [])])
 
