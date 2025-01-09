@@ -1,7 +1,8 @@
 import unittest
-from tkinter import Tk
 from sudoku_app import SudokuApp
+from tkinter import Tk
 from unittest.mock import MagicMock
+# pylint: skip-file
 
 class TestSudokuApp(unittest.TestCase):
     def setUp(self):

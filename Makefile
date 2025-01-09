@@ -6,7 +6,7 @@ run:
 	python main.py
 
 check:
-#	make test
+	make test
 	make lint
 
 lint:

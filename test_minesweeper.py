@@ -1,7 +1,8 @@
+from minesweeper_app import MinesweeperApp
+from tkinter import Tk
 import unittest
 from unittest.mock import patch
-from tkinter import Tk
-from minesweeper_app import MinesweeperApp
+# pylint: skip-file
 
 class TestMinesweeperApp(unittest.TestCase):
     def setUp(self):
