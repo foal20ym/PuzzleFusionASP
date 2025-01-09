@@ -11,3 +11,4 @@ pycparser==2.22
 pylint==3.3.2
 tkmacosx==1.0.5
 tomlkit==0.13.2
+SPARQLWrapper

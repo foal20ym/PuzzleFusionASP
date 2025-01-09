@@ -8,7 +8,6 @@ tkinter. The game makes use of Answer Set Programming (ASP) through Clingo to so
 Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
 Created: Monday January 6, 2025
 """
-
 import tkinter as tk
 from tkinter import messagebox, OptionMenu, StringVar
 from random import randint
