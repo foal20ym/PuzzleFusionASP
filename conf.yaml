@@ -1,0 +1,16 @@
+questions:
+  - text: "How many band members were there in ?"
+    type: "schema:MusicGroup"
+    property: "schema:memberOf"
+  
+  - text: "Can you name a band member of ?"
+    type: "schema:MusicGroup"
+    property: "schema:memberOf"
+  
+  - text: "Who is the leader of ?"
+    type: "yago:Sovereign_state"
+    property: "schema:leader"
+
+  - text: "What is the capital of ?"
+    type: "yago:Sovereign_state"
+    property: "yago:capital"
