@@ -8,12 +8,12 @@ tkinter. The game makes use of Answer Set Programming (ASP) through Clingo to so
 Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
 Created: Monday January 6, 2025
 """
+from apps.sparql_app import get_answer
 import tkinter as tk
 from tkinter import messagebox, OptionMenu, StringVar, simpledialog
 from random import sample
 from PIL import Image, ImageTk
 import clingo
-from sparql import get_answer
 
 class SudokuApp:
     """
