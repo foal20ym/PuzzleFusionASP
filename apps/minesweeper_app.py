@@ -275,7 +275,7 @@ class MinesweeperApp:
             self.cells[row][col].config(text="")
         else:
             self.flags.add((row, col))
-            self.cells[row][col].config(text="F")
+            self.cells[row][col].config(text="F", bg="red")
 
     def reveal_mines(self):
         """
@@ -414,20 +414,11 @@ class MinesweeperApp:
         for row, col in self.solution_mines:
             if (row, col) not in self.flags:
                 self.flags.add((row, col))
-                self.cells[row][col].config(text="F")
+                self.cells[row][col].config(text="F", borderless=1, bg="red")
 
         for pos, num in self.solution_numbers.items():
             row, col = pos
-            if pos not in self.revealed and pos not in self.mines:
-                self.revealed.add((row, col))
-                count = self.count_adjacent_mines(row, col)
-                self.cells[row][col].config(
-                    text=str(count) if count > 0 else "",
-                    state="disabled",
-                    bg="lightgray"
-                )
-        messagebox.showinfo("Congratulations", "You won!")
-        self.reset()
+            self.reveal_cell(row, col)
 
     def new_game(self):
         """

@@ -98,8 +98,10 @@ class SudokuApp:
                 return 'break'
             if self.entries[row][col].get():
                 return 'break'
+            self.root.after(0, self.track_user_input, row, col)
             return None
         if event.keysym in ('BackSpace', 'Delete'):
+            self.root.after(0, self.track_user_input, row, col)
             return None
         return 'break'
 
@@ -167,6 +169,11 @@ class SudokuApp:
         in the grid. If no solution exists, it shows an error message.
         """
         messagebox.showinfo("Solve", "Solve button clicked")
+        for row, col in self.user_inputs:
+            self.entries[row][col].config(state='normal')
+            self.entries[row][col].delete(0, tk.END)
+        self.user_inputs.clear()
+        self.user_inputs = []
         facts = self.get_current_facts()
         solutions = self.asp_solver(facts)
 
@@ -196,6 +203,7 @@ class SudokuApp:
             self.entries[row][col].config(state='normal')
             self.entries[row][col].delete(0, tk.END)
         self.user_inputs.clear()
+        self.user_inputs = []
 
     def new_game(self):
         """
