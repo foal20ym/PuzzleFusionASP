@@ -356,7 +356,6 @@ class MinesweeperApp:
             error message is displayed and no hint is provided.
             """
 
-            # toggle to use or not to use the whole sparql thingy
             if not self.use_sparql_queries:
                 self.generate_asp_hint()
                 return
