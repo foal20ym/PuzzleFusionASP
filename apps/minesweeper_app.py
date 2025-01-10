@@ -101,7 +101,10 @@ class MinesweeperApp:
                     height=40,
                     command=lambda r=row, c=col: self.cell_clicked(r, c),
                 )
-                button.bind("<Button-3>", lambda event, r=row, c=col: self.toggle_flag(r, c))
+                if platform.system() == "Darwin":
+                    button.bind("<Button-2>", lambda event, r=row, c=col: self.toggle_flag(r, c))
+                else:
+                    button.bind("<Button-3>", lambda event, r=row, c=col: self.toggle_flag(r, c))
                 button.place(
                     x=start_x + col * cell_size,
                     y=start_y + row * cell_size,
@@ -275,7 +278,7 @@ class MinesweeperApp:
             return
         if (row, col) in self.flags:
             self.flags.remove((row, col))
-            self.cells[row][col].config(text="")
+            self.cells[row][col].config(text="", bg="gray")
         else:
             self.flags.add((row, col))
             self.cells[row][col].config(text="F", bg="red")
