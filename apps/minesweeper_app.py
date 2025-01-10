@@ -414,7 +414,7 @@ class MinesweeperApp:
         for row, col in self.solution_mines:
             if (row, col) not in self.flags:
                 self.flags.add((row, col))
-                self.cells[row][col].config(text="F", borderless=1, bg="red")
+                self.cells[row][col].config(text="F", bg="red")
 
         for pos, num in self.solution_numbers.items():
             row, col = pos
