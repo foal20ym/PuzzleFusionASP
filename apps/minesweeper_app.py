@@ -218,7 +218,10 @@ class MinesweeperApp:
                 messagebox.showinfo("Congratulations", "You won!")
                 self.game_over = True
         if self.game_over:
-            self.reset()
+            self.reveal_mines()
+            for pos, num in self.solution_numbers.items():
+                row, col = pos
+                self.reveal_cell(row, col)
 
     def reveal_cell(self, row, col):
         """
