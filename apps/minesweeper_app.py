@@ -6,7 +6,7 @@ This code implements a Minesweeper game using a graphical user interface (GUI) b
 tkinter. The game makes use of Answer Set Programming (ASP) through Clingo to solve the board.
 
 Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
-Created: Monday January 6, 2025
+Created: Tuesday, December 10th, 2024
 """
 from apps.sparql_app import get_answer
 import tkinter as tk

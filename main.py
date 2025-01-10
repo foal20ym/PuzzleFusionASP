@@ -5,7 +5,7 @@ Main module
 This module is the main module of the application. It creates the main menu and launches the different games.
 
 Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
-Created: Monday January 6, 2025
+Created: Tuesday, December 10th, 2024
 """
 import tkinter as tk
 import platform
