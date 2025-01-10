@@ -6,7 +6,7 @@ This code implements a Minesweeper game using a graphical user interface (GUI) b
 tkinter. The game makes use of Answer Set Programming (ASP) through Clingo to solve the board.
 
 Authors: Alexander Forsanker, Ivo Östberg Nilsson, Joel Scarinius Stävmo, Linus Savinainen
-Created: Monday January 6, 2025
+Created: Tuesday, December 10th, 2024
 """
 from apps.sparql_app import get_answer
 import tkinter as tk
@@ -101,7 +101,10 @@ class MinesweeperApp:
                     height=40,
                     command=lambda r=row, c=col: self.cell_clicked(r, c),
                 )
-                button.bind("<Button-3>", lambda event, r=row, c=col: self.toggle_flag(r, c))
+                if platform.system() == "Darwin":
+                    button.bind("<Button-2>", lambda event, r=row, c=col: self.toggle_flag(r, c))
+                else:
+                    button.bind("<Button-3>", lambda event, r=row, c=col: self.toggle_flag(r, c))
                 button.place(
                     x=start_x + col * cell_size,
                     y=start_y + row * cell_size,
@@ -218,7 +221,10 @@ class MinesweeperApp:
                 messagebox.showinfo("Congratulations", "You won!")
                 self.game_over = True
         if self.game_over:
-            self.reset()
+            self.reveal_mines()
+            for pos, num in self.solution_numbers.items():
+                row, col = pos
+                self.reveal_cell(row, col)
 
     def reveal_cell(self, row, col):
         """
@@ -272,10 +278,10 @@ class MinesweeperApp:
             return
         if (row, col) in self.flags:
             self.flags.remove((row, col))
-            self.cells[row][col].config(text="")
+            self.cells[row][col].config(text="", bg="gray")
         else:
             self.flags.add((row, col))
-            self.cells[row][col].config(text="F")
+            self.cells[row][col].config(text="F", bg="red")
 
     def reveal_mines(self):
         """
@@ -353,7 +359,6 @@ class MinesweeperApp:
             error message is displayed and no hint is provided.
             """
 
-            # toggle to use or not to use the whole sparql thingy
             if not self.use_sparql_queries:
                 self.generate_asp_hint()
                 return
@@ -414,20 +419,11 @@ class MinesweeperApp:
         for row, col in self.solution_mines:
             if (row, col) not in self.flags:
                 self.flags.add((row, col))
-                self.cells[row][col].config(text="F")
+                self.cells[row][col].config(text="F", bg="red")
 
         for pos, num in self.solution_numbers.items():
             row, col = pos
-            if pos not in self.revealed and pos not in self.mines:
-                self.revealed.add((row, col))
-                count = self.count_adjacent_mines(row, col)
-                self.cells[row][col].config(
-                    text=str(count) if count > 0 else "",
-                    state="disabled",
-                    bg="lightgray"
-                )
-        messagebox.showinfo("Congratulations", "You won!")
-        self.reset()
+            self.reveal_cell(row, col)
 
     def new_game(self):
         """
